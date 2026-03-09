@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Wall Escolar - Proyect</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        #header { background: #1a73e8; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        #canvas { width: 100vw; height: 90vh; position: relative; overflow: hidden; }
+        .note { width: 180px; padding: 15px; background: #fff475; position: absolute; border-radius: 8px; box-shadow: 2px 4px 8px rgba(0,0,0,0.2); }
+        .btn-add { background: #ff4081; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <h1>Wall Escolar</h1>
+    <button style="padding: 15px; cursor: pointer;" onclick="login()">Entrar con Google</button>
+</div>
+
+<div id="header">
+    <span id="user-name">Cargando...</span>
+    <button class="btn-add" onclick="addNewNote()">+ Nueva Nota</button>
+</div>
+
+<div id="canvas"></div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
+    authDomain: "wall-5b79c.firebaseapp.com",
+    projectId: "wall-5b79c",
+    storageBucket: "wall-5b79c.firebasestorage.app",
+    messagingSenderId: "167646035095",
+    appId: "1:167646035095:web:8286c655f6b0986b33fdd2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then(result => {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('user-name').innerText = "Usuario: " + result.user.displayName;
+        listenNotes();
+    });
+  }
+
+  function addNewNote() {
+    const text = prompt("Escribe tu nota:");
+    if (text) {
+        db.collection("notes").add({
+            content: text,
+            author: auth.currentUser.displayName,
+            x: Math.random() * 300,
+            y: Math.random() * 300,
+            date: new Date()
+        });
+    }
+  }
+
+  function listenNotes() {
+    db.collection("notes").orderBy("date", "desc").onSnapshot(snapshot => {
+        const canvas = document.getElementById('canvas');
+        canvas.innerHTML = "";
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note';
+            noteDiv.style.left = data.x + "px";
+            noteDiv.style.top = data.y + "px";
+            noteDiv.innerHTML = `<strong>${data.author}:</strong><br>${data.content}`;
+            canvas.appendChild(noteDiv);
+        });
+    });
+  }
+</script>
+</body>
+</html>
