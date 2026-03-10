@@ -31,28 +31,47 @@
             display:none; flex-direction:column; justify-content:center; align-items:center; z-index:4000; color: white;
         }
 
-        .login-card { 
-            background: white; padding: 35px; border-radius: 24px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436;
-        }
-
+        /* CABECERA REDISEÑADA */
         #header { 
-            background: rgba(255, 255, 255, 0.98); padding: 10px 20px; 
-            display: none; flex-direction: column; gap: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
+            background: white; 
+            padding: 15px; 
+            display: none; 
+            flex-direction: column; 
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
         }
 
-        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .header-top { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 100%; 
+        }
 
-        /* BUSCADOR: Forzamos visibilidad con margen */
-        .search-container { width: 100%; margin-top: 5px; display: block !important; }
+        /* BUSCADOR FORZADO */
+        .search-box { 
+            width: 100%; 
+            display: block !important; 
+            visibility: visible !important;
+        }
+
         #search-input { 
-            width: 100%; padding: 10px 15px; border-radius: 20px; border: 2px solid #dfe6e9; 
-            font-size: 16px; outline: none; box-sizing: border-box; background: #f8f9fa;
+            width: 100%; 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+            border: 2px solid #edeff0; 
+            font-size: 16px; 
+            outline: none; 
+            box-sizing: border-box; 
+            background: #f1f3f4;
+            color: #2d3436;
         }
 
         .bg-controls { display: flex; gap: 8px; align-items: center; }
-        .bg-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .bg-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         #canvas { padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
 
@@ -75,37 +94,35 @@
         .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
         .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 1em; }
 
+        /* Estilos de Escritorio */
+        @media (min-width: 768px) {
+            #header { flex-direction: row; align-items: center; padding: 10px 30px; }
+            .search-box { width: 300px; }
+        }
+
+        /* Formulario modal */
         #note-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
+            background: rgba(0,0,0,0.75); display: none; justify-content: center; align-items: center; z-index: 5000;
         }
         .modal-content { background: white; padding: 25px; border-radius: 18px; width: 95%; max-width: 400px; }
         .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-        
+        .btn-save { background: var(--success); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
         .color-selector { display: flex; gap: 10px; margin: 10px 0 20px; justify-content: center; flex-wrap: wrap; }
         .color-opt { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
         .color-opt.selected { border-color: #333; transform: scale(1.1); }
-
-        .btn-save { background: var(--success); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
-
-        @media (min-width: 650px) {
-            #header { flex-direction: row; justify-content: space-between; align-items: center; }
-            .search-container { width: 300px; margin-top: 0; }
-        }
     </style>
 </head>
 <body id="main-body">
 
 <div id="login-screen">
-    <div style="margin-bottom: 25px; text-align: center;">
+    <div style="text-align: center; margin-bottom: 30px;">
         <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
-        <p>Tu espacio profesional de ideas.</p>
+        <p>Espacio de trabajo profesional</p>
     </div>
-    <div class="login-card">
-        <h3 style="text-align: center;">¡Bienvenido!</h3>
-        <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">
-            Entrar con Google
+    <div style="background: white; padding: 30px; border-radius: 20px; color: #333; width: 300px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Entrar con Google
         </button>
     </div>
 </div>
@@ -120,13 +137,14 @@
             <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
             <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div>
         </div>
-        <div style="display:flex; gap:12px; align-items: center;">
+        <div style="display:flex; gap:10px;">
             <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold; font-size: 14px;">SALIR</button>
-            <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:bold; font-size: 14px;">+ NOTA</button>
+            <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">+ NOTA</button>
         </div>
     </div>
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="🔍 Buscar notas..." onkeyup="filterNotes()">
+    
+    <div class="search-box">
+        <input type="text" id="search-input" placeholder="🔍 Buscar notas por texto..." onkeyup="filterNotes()">
     </div>
 </div>
 
@@ -134,10 +152,9 @@
 
 <div id="note-modal">
     <div class="modal-content">
-        <h2 id="modal-title" style="margin-top:0">Nueva Nota</h2>
-        <textarea id="note-text" class="modal-input" placeholder="Escribe tu idea aquí..." style="height:120px; resize:none;"></textarea>
+        <h2 id="modal-title" style="margin-top:0">Nota</h2>
+        <textarea id="note-text" class="modal-input" placeholder="Contenido de la nota..." style="height:120px; resize:none;"></textarea>
         <input type="text" id="note-img" class="modal-input" placeholder="Link de imagen (URL)">
-        <p style="margin:0 0 10px; font-weight:bold; font-size:0.95em">Color de nota:</p>
         <div class="color-selector">
             <div class="color-opt selected" style="background:#fff740" onclick="setNoteColor('#fff740', this)"></div>
             <div class="color-opt" style="background:#7efff5" onclick="setNoteColor('#7efff5', this)"></div>
@@ -146,13 +163,12 @@
             <div class="color-opt" style="background:#cd84f1" onclick="setNoteColor('#cd84f1', this)"></div>
             <div class="color-opt" style="background:#800000" onclick="setNoteColor('#800000', this)"></div>
         </div>
-        <button class="btn-save" onclick="saveNote()">GUARDAR CAMBIOS</button>
-        <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; color:#636e72; margin-top:15px; cursor:pointer; font-size: 15px;">Cancelar</button>
+        <button class="btn-save" onclick="saveNote()">GUARDAR</button>
+        <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; color:#636e72; margin-top:15px; cursor:pointer;">Cerrar</button>
     </div>
 </div>
 
 <script>
-  // Tu configuración de Firebase se mantiene igual
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -210,23 +226,11 @@
     const text = document.getElementById('note-text').value;
     const img = document.getElementById('note-img').value;
     if (!text.trim()) return;
-
-    const noteData = {
-        content: text,
-        imageUrl: img || null,
-        color: selectedNoteColor,
-        date: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
+    const noteData = { content: text, imageUrl: img || null, color: selectedNoteColor, date: firebase.firestore.FieldValue.serverTimestamp() };
     if (currentEditId) {
         db.collection("notes").doc(currentEditId).update(noteData).then(closeNoteForm);
     } else {
-        db.collection("notes").add({
-            ...noteData,
-            author: auth.currentUser.displayName,
-            authorId: auth.currentUser.uid,
-            rotation: (Math.random() * 6 - 3).toFixed(1)
-        }).then(closeNoteForm);
+        db.collection("notes").add({ ...noteData, author: auth.currentUser.displayName, authorId: auth.currentUser.uid, rotation: (Math.random() * 6 - 3).toFixed(1) }).then(closeNoteForm);
     }
   }
 
@@ -242,9 +246,7 @@
   function renderNotes(notes) {
     const canvas = document.getElementById('canvas');
     canvas.innerHTML = "";
-    const sorted = notes.sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
-
-    sorted.forEach(data => {
+    notes.sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0)).forEach(data => {
         const noteDiv = document.createElement('div');
         const isDark = data.color === '#800000';
         noteDiv.className = `note ${isDark ? 'dark-note' : ''}`;
