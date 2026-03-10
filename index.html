@@ -219,17 +219,25 @@
       padding: 1.2rem 1.5rem;
       min-height: calc(100vh - 140px);
     }
+    
+    /* MODO GRID - CORREGIDO */
     .board-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem;
+      align-items: start;
     }
+    
+    /* MODO CANVAS - CORREGIDO */
     .board-canvas {
       position: relative;
-      min-height: 600px;
+      min-height: 800px;
       background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-      background-size: 24px 24px;
+      background-size: 20px 20px;
+      overflow: visible;
     }
+    
+    /* MODO LISTA */
     .board-list {
       display: flex;
       flex-direction: column;
@@ -239,17 +247,51 @@
     .note {
       background: var(--card-bg);
       border-radius: 12px;
-      padding: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       border: 1px solid var(--border);
-      transition: transform 0.15s;
+      transition: transform 0.15s, box-shadow 0.15s;
       position: relative;
-      overflow: hidden; /* Previene que nada se salga */
+      overflow: hidden;
     }
     .note:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
+    
+    /* GRID: tamaño fijo */
+    .board-grid .note {
+      padding: 1rem;
+      height: auto;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* CANVAS: posición absoluta y draggable */
+    .board-canvas .note {
+      position: absolute;
+      padding: 1rem;
+      width: 300px;
+      min-height: 250px;
+      cursor: move;
+      user-select: none;
+      z-index: 1;
+    }
+    .board-canvas .note.dragging {
+      opacity: 0.8;
+      z-index: 1000;
+      transform: scale(1.02);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    }
+    
+    /* LISTA: ancho completo */
+    .board-list .note {
+      padding: 1.2rem;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
     .note-header {
       display: flex;
       justify-content: space-between;
@@ -297,23 +339,36 @@
       margin-bottom: 0.7rem;
       color: #334155;
       white-space: pre-wrap;
+      flex: 1;
     }
-    .note-content img,
-    .note-content video {
+    
+    /* IMAGENES - CORREGIDO PARA GRID */
+    .note-content img {
       max-width: 100%;
-      max-height: 250px; /* Limita altura máxima */
+      max-height: 300px;
       width: auto;
       height: auto;
-      object-fit: contain; /* Mantiene proporción */
+      object-fit: contain;
       border-radius: 8px;
       margin-top: 0.4rem;
       display: block;
     }
+    
+    .note-content video {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 8px;
+      margin-top: 0.4rem;
+      display: block;
+    }
+    
     .note-content iframe {
       max-width: 100%;
       border-radius: 8px;
       margin-top: 0.4rem;
+      aspect-ratio: 16/9;
     }
+    
     .note-content a.link-card {
       display: block;
       padding: 0.7rem;
@@ -349,6 +404,7 @@
       color: var(--text-muted);
       border-top: 1px solid var(--border);
       padding-top: 0.6rem;
+      margin-top: auto;
     }
     .reaction-btn {
       display: flex;
@@ -527,6 +583,8 @@
       .search-box input { width: 100%; }
       .post-types { grid-template-columns: repeat(2, 1fr); }
       #board { padding: 0.8rem 1rem; }
+      .board-grid { grid-template-columns: 1fr; }
+      .board-canvas .note { width: 260px; }
     }
   </style>
 </head>
@@ -684,7 +742,9 @@
       unsubscribe: null,
       currentLayout: 'grid',
       selectedColor: '#ffffff',
-      editingNoteId: null
+      editingNoteId: null,
+      draggedNote: null,
+      dragOffset: { x: 0, y: 0 }
     };
 
     // DOM Elements
@@ -702,7 +762,6 @@
     // === AUTH STATE ===
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // Usuario logueado: mostrar app
         state.currentUser = user;
         document.getElementById('userName').textContent = user.displayName || 'Usuario';
         document.getElementById('userEmail').textContent = user.email;
@@ -713,7 +772,6 @@
         
         subscribeToNotes();
       } else {
-        // Usuario no logueado: mostrar landing
         state.currentUser = null;
         if (state.unsubscribe) state.unsubscribe();
         
@@ -784,7 +842,12 @@
           author: state.currentUser.displayName || 'Usuario',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-          reactions: { likes: 0, comments: 0 }
+          reactions: { likes: 0, comments: 0 },
+          // Posición inicial para canvas
+          position: state.currentLayout === 'canvas' ? {
+            x: Math.random() * 400 + 50,
+            y: Math.random() * 300 + 50
+          } : null
         });
         showToast('✅ Nota creada');
       }
@@ -803,6 +866,15 @@
           [`reactions.${field}`]: (note.reactions?.[field] || 0) + 1
         });
       }
+    }
+
+    // Actualizar posición en canvas
+    async function updateNotePosition(noteId, x, y) {
+      const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
+      await updateDoc(noteRef, {
+        position: { x, y },
+        updatedAt: serverTimestamp()
+      });
     }
 
     // === RENDER ===
@@ -829,7 +901,10 @@
       els.board.className = `board-${state.currentLayout}`;
       els.board.innerHTML = visible.map(note => createNoteHTML(note)).join('');
       
-      if (state.currentLayout === 'canvas') setupCanvasDrag();
+      if (state.currentLayout === 'canvas') {
+        setupCanvasDrag();
+        restoreCanvasPositions();
+      }
     }
 
     function createNoteHTML(note) {
@@ -843,9 +918,9 @@
       } else if (note.type === 'video' && note.url) {
         if (note.url.includes('youtube.com') || note.url.includes('youtu.be')) {
           const vid = note.url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/)?.[1];
-          if (vid) media = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:8px;margin-top:0.4rem"></iframe>`;
+          if (vid) media = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
         } else if (note.url.match(/\.(mp4|webm|ogg)$/i)) {
-          media = `<video controls src="${escapeHtml(note.url)}" style="width:100%;border-radius:8px;margin-top:0.4rem"></video>`;
+          media = `<video controls src="${escapeHtml(note.url)}"></video>`;
         } else {
           media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🎬 Ver video externo</a>`;
         }
@@ -878,6 +953,93 @@
           </div>
         </article>
       `;
+    }
+
+    // === CANVAS DRAG AND DROP - MEJORADO ===
+    function setupCanvasDrag() {
+      const board = els.board;
+      
+      board.addEventListener('mousedown', handleDragStart);
+      board.addEventListener('mousemove', handleDragMove);
+      board.addEventListener('mouseup', handleDragEnd);
+      board.addEventListener('mouseleave', handleDragEnd);
+      
+      // Touch events para móvil
+      board.addEventListener('touchstart', handleDragStart, { passive: false });
+      board.addEventListener('touchmove', handleDragMove, { passive: false });
+      board.addEventListener('touchend', handleDragEnd);
+    }
+
+    function handleDragStart(e) {
+      const note = e.target.closest('.note');
+      if (!note) return;
+      
+      e.preventDefault();
+      state.draggedNote = note;
+      note.classList.add('dragging');
+      
+      const rect = note.getBoundingClientRect();
+      const boardRect = els.board.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      state.dragOffset = {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+      
+      // Traer al frente
+      note.style.zIndex = '1000';
+    }
+
+    function handleDragMove(e) {
+      if (!state.draggedNote) return;
+      e.preventDefault();
+      
+      const boardRect = els.board.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      
+      let newX = clientX - boardRect.left - state.dragOffset.x;
+      let newY = clientY - boardRect.top - state.dragOffset.y;
+      
+      // Limitar a los bordes del board
+      const noteWidth = state.draggedNote.offsetWidth;
+      const noteHeight = state.draggedNote.offsetHeight;
+      
+      newX = Math.max(0, Math.min(newX, boardRect.width - noteWidth));
+      newY = Math.max(0, Math.min(newY, boardRect.height - noteHeight));
+      
+      state.draggedNote.style.left = `${newX}px`;
+      state.draggedNote.style.top = `${newY}px`;
+    }
+
+    function handleDragEnd(e) {
+      if (!state.draggedNote) return;
+      
+      const note = state.draggedNote;
+      const noteId = note.dataset.id;
+      const boardRect = els.board.getBoundingClientRect();
+      
+      const newX = parseFloat(note.style.left) || 0;
+      const newY = parseFloat(note.style.top) || 0;
+      
+      // Guardar posición en Firestore
+      updateNotePosition(noteId, newX, newY);
+      
+      note.classList.remove('dragging');
+      note.style.zIndex = '';
+      state.draggedNote = null;
+    }
+
+    function restoreCanvasPositions() {
+      state.notes.forEach(note => {
+        const noteEl = els.board.querySelector(`[data-id="${note.id}"]`);
+        if (noteEl && note.position) {
+          noteEl.style.left = `${note.position.x}px`;
+          noteEl.style.top = `${note.position.y}px`;
+        }
+      });
     }
 
     // === MODAL ===
@@ -985,26 +1147,6 @@
     function filterByTag(tag) {
       els.searchInput.value = tag;
       els.searchInput.dispatchEvent(new Event('input'));
-    }
-
-    function setupCanvasDrag() {
-      let dragged = null;
-      els.board.querySelectorAll('.note').forEach(el => {
-        el.draggable = true;
-        el.style.position = 'absolute';
-        el.style.left = `${Math.random()*60+10}%`;
-        el.style.top = `${Math.random()*60+10}%`;
-        el.ondragstart = (e) => { dragged = el; el.classList.add('dragging'); };
-        el.ondragend = () => { dragged = null; el.classList.remove('dragging'); };
-      });
-      els.board.ondragover = e => e.preventDefault();
-      els.board.ondrop = (e) => {
-        e.preventDefault();
-        if (!dragged) return;
-        const r = els.board.getBoundingClientRect();
-        dragged.style.left = `${Math.max(0, Math.min(e.clientX-r.left-130, r.width-260))}px`;
-        dragged.style.top = `${Math.max(0, Math.min(e.clientY-r.top-100, r.height-200))}px`;
-      };
     }
 
     // === EVENT LISTENERS ===
