@@ -3,46 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wall Escolar</title>
+    <title>Muro Colaborativo</title>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
     <style>
-        body { background: #dfe6e9; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        /* Pantalla de carga inicial para evitar pestañeo */
-        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #dfe6e9; display: flex; justify-content: center; align-items: center; z-index: 2000; }
-        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0984e3; color:white; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
-        #header { background: #ffffff; color: #333; padding: 10px 20px; display: flex; justify-content: space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display:none; position: sticky; top: 0; z-index: 100; }
-        #canvas { padding: 25px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .note { padding: 20px; border-radius: 2px; box-shadow: 5px 5px 7px rgba(33,33,33,.2); transform: rotate(-1deg); transition: 0.2s; position: relative; min-height: 120px; }
-        .actions { position: absolute; top: 5px; right: 5px; display: flex; gap: 5px; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 0.9em; opacity: 0.3; }
-        .action-btn:hover { opacity: 1; }
-        .btn-add { background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .btn-logout { background: #fab1a0; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
-        .btn-login { background: white; color: #0984e3; border: none; padding: 15px 40px; border-radius: 30px; cursor: pointer; font-size: 1.2em; font-weight: bold; }
+        :root {
+            --primary: #0984e3;
+            --success: #00b894;
+            --danger: #d63031;
+        }
+        body { 
+            margin: 0; 
+            font-family: 'Poppins', sans-serif; 
+            background: #d2b48c url('https://www.transparenttextures.com/patterns/cork-board.png'); /* Textura de corcho */
+        }
+        
+        #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 3000; font-weight: bold; color: var(--primary); }
+        
+        #login-screen { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe); 
+            color:white; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; 
+            text-align: center;
+        }
+
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: #333; width: 320px; }
+        .btn-social { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .google { background: #fff; border: 1px solid #ddd; }
+        .microsoft { background: #2f2f2f; color: white; }
+        .facebook { background: #1877f2; color: white; }
+        .btn-social:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        #header { 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items:center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
+        }
+
+        #canvas { 
+            padding: 30px; display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; 
+        }
+
+        .note { 
+            padding: 25px 20px 20px; border-radius: 3px; 
+            box-shadow: 8px 8px 15px rgba(0,0,0,0.2); 
+            position: relative; min-height: 150px;
+            transition: 0.3s ease;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 90%, 90% 100%, 0% 100%); /* Efecto esquina doblada */
+        }
+        .note::before { content: "📌"; position: absolute; top: -10px; left: 45%; font-size: 1.5rem; }
+        .note:hover { transform: scale(1.02) rotate(0deg) !important; z-index: 10; }
+        
+        .note h3 { margin: 0 0 10px 0; font-size: 0.85em; text-transform: uppercase; letter-spacing: 1px; color: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(0,0,0,0.1); }
+        .note p { font-size: 1.1em; color: #2d3436; line-height: 1.4; word-wrap: break-word; }
+
+        .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 8px; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1em; opacity: 0.3; transition: 0.2s; }
+        .action-btn:hover { opacity: 1; transform: scale(1.2); }
+
+        .btn-add { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,184,148,0.3); }
+        .btn-logout { background: #eee; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen">Cargando...</div>
+<div id="loading-screen">Prepando tu muro...</div>
 
 <div id="login-screen">
-    <h1>📝 Wall Escolar</h1>
-    <button class="btn-login" onclick="login()">Entrar con Google</button>
+    <div class="login-card">
+        <h2 style="margin-top:0">🚀 Ideas en Acción</h2>
+        <p style="color:#666; font-size:0.9em">Inicia sesión para colaborar</p>
+        
+        <button class="btn-social google" onclick="login('google')">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Google
+        </button>
+        
+        <button class="btn-social microsoft" onclick="alert('Próximamente: Configura el proveedor en Firebase console')">
+            Microsoft
+        </button>
+
+        <button class="btn-social facebook" onclick="alert('Próximamente: Configura el proveedor en Firebase console')">
+            Facebook
+        </button>
+    </div>
 </div>
 
 <div id="header">
-    <div>
-        <span id="user-name" style="font-weight: bold; margin-right: 10px;"></span>
+    <div style="display:flex; align-items:center; gap:15px">
+        <h2 style="margin:0; font-size:1.2em; color:var(--primary)">Muro Colaborativo</h2>
         <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
-    <button class="btn-add" onclick="addNewNote()">+ Nueva Nota</button>
+    <div style="display:flex; align-items:center; gap:20px">
+        <span id="user-name" style="font-weight: 600; font-size: 0.9em;"></span>
+        <button class="btn-add" onclick="addNewNote()">+ Crear Nota</button>
+    </div>
 </div>
 
 <div id="canvas"></div>
 
 <script>
+  // Tu configuración de Firebase (no la cambies)
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -55,9 +117,8 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-  const colors = ['#fffa65', '#7efff5', '#ffaf40', '#cd84f1', '#ffcccc', '#fff200'];
+  const colors = ['#fff740', '#7efff5', '#ffaf40', '#cd84f1', '#ffcccc', '#67e6dc'];
 
-  // Lógica mejorada para detectar login
   auth.onAuthStateChanged(user => {
     document.getElementById('loading-screen').style.display = 'none';
     if (user) {
@@ -72,25 +133,35 @@
     }
   });
 
-  function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  function login(providerName) {
+      let provider;
+      if(providerName === 'google') provider = new firebase.auth.GoogleAuthProvider();
+      // Nota: Para Microsoft/FB debes habilitarlos primero en la consola de Firebase > Authentication
+      auth.signInWithPopup(provider);
+  }
+
   function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
 
   function addNewNote() {
-    const text = prompt("Escribe tu mensaje:");
+    const text = prompt("¿Qué quieres compartir hoy?");
     if (text) {
+        // Rotación aleatoria para cada nota para que parezca real
+        const randomRot = (Math.random() * 6 - 3).toFixed(1);
         db.collection("notes").add({
             content: text,
             author: auth.currentUser.displayName,
             authorId: auth.currentUser.uid,
             color: colors[Math.floor(Math.random() * colors.length)],
+            rotation: randomRot,
             date: new Date()
         });
     }
   }
 
-  function deleteNote(id) { if(confirm("¿Borrar nota?")) db.collection("notes").doc(id).delete(); }
+  function deleteNote(id) { if(confirm("¿Eliminar permanentemente?")) db.collection("notes").doc(id).delete(); }
+  
   function editNote(id, oldText) {
-    const newText = prompt("Edita tu mensaje:", oldText);
+    const newText = prompt("Modificar nota:", oldText);
     if (newText && newText !== oldText) db.collection("notes").doc(id).update({ content: newText });
   }
 
@@ -104,10 +175,12 @@
             const noteDiv = document.createElement('div');
             noteDiv.className = 'note';
             noteDiv.style.backgroundColor = data.color || '#fff9c4';
+            noteDiv.style.transform = `rotate(${data.rotation || 0}deg)`;
+            
             noteDiv.innerHTML = `
                 <div class="actions">
                     ${isOwner ? `<button class="action-btn" onclick="editNote('${doc.id}', '${data.content.replace(/'/g, "\\'")}')">✏️</button>` : ''}
-                    ${isOwner ? `<button class="action-btn" onclick="deleteNote('${doc.id}')">❌</button>` : ''}
+                    ${isOwner ? `<button class="action-btn" onclick="deleteNote('${doc.id}')">🗑️</button>` : ''}
                 </div>
                 <h3>${data.author}</h3>
                 <p>${data.content}</p>
