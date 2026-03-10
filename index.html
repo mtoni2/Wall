@@ -1,296 +1,369 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro de Ideas Pro - Business Edition</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Muro de Ideas Pro - Versión Final</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png');
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.3s ease;
+    }
     
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
+    /* Login */
+    #login-screen { 
+        position: fixed; top:0; left:0; width:100%; height:100%; 
+        background: linear-gradient(rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9)), 
+                    url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
+        background-size: cover; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; color: white;
+    }
+    .login-card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 90%; max-width: 350px; text-align: center; color: var(--text); }
 
-    <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: var(--bg);
-            background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png');
-            color: var(--text);
-            min-height: 100vh;
-        }
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      color: white; padding: 1rem 2rem;
+      display: none; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Toolbar */
+    .toolbar {
+      background: white; padding: 0.75rem 2rem;
+      display: none; gap: 1rem; align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 60px; z-index: 99; flex-wrap: wrap;
+    }
 
-        /* LOGIN SCREEN - Tu Portada Atractiva */
-        #login-screen { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: linear-gradient(rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8)), 
-                        url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover; background-position: center;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 5000; color: white;
-        }
-        .login-card { 
-            background: white; padding: 35px; border-radius: 24px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436; text-align: center;
-        }
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1rem; border-radius: 8px; border: none;
+      cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;
+      transition: all 0.2s; font-size: 0.9rem;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
 
-        /* HEADER & TOOLBAR (Estilo index2.html) */
-        header {
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            color: white; padding: 1rem 2rem;
-            display: none; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .toolbar {
-            padding: 1rem 2rem; display: none; gap: 0.5rem; flex-wrap: wrap;
-            background: white; border-bottom: 1px solid var(--border);
-            position: sticky; top: 60px; z-index: 99; align-items: center;
-        }
-        .btn {
-            padding: 0.5rem 1rem; border: none; border-radius: 8px;
-            background: var(--primary); color: white; cursor: pointer;
-            display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; font-weight: 600;
-        }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    /* Buscador */
+    .search-container input {
+      padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border);
+      width: 250px; outline: none; background: #f1f5f9;
+    }
 
-        /* BUSCADOR */
-        .search-bar input {
-            padding: 0.5rem 1rem; border: 1px solid var(--border);
-            border-radius: 20px; width: 250px; outline: none;
-        }
+    /* Canvas / Board */
+    #board {
+      padding: 2rem; display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
 
-        /* BOARD */
-        #board {
-            padding: 2rem; display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
+    /* Notes Style */
+    .note {
+      background: var(--card-bg); border-radius: 12px; padding: 1.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border);
+      position: relative; transition: transform 0.2s;
+    }
+    .note-header { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.8rem; color: #64748b; }
+    .note-content h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .note-content p { font-size: 0.95rem; color: #475569; }
+    .note-media { margin-top: 1rem; border-radius: 8px; overflow: hidden; max-height: 250px; }
+    .note-media img, .note-media video, .note-media iframe { width: 100%; display: block; }
+    .note-footer { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag { font-size: 0.75rem; background: #eef2ff; color: var(--primary); padding: 0.1rem 0.5rem; border-radius: 4px; }
 
-        /* NOTA ESTILO PADLET */
-        .note {
-            background: var(--card-bg); border-radius: 12px; padding: 1.2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border);
-            position: relative; transition: 0.3s;
-        }
-        .note-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .note-author { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; }
-        .avatar-mini { width: 24px; height: 24px; border-radius: 50%; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
-        
-        .note-content img, .note-content video, .note-content iframe {
-            width: 100%; border-radius: 8px; margin-top: 10px; max-height: 200px; object-fit: cover;
-        }
-        .tag { font-size: 0.7rem; padding: 2px 8px; background: #eef2ff; color: var(--primary); border-radius: 10px; margin-right: 4px; }
+    /* Modals */
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; padding: 2rem; border-radius: 1rem;
+      width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+    }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 0.6rem; border: 1px solid var(--border); border-radius: 0.5rem; outline: none;
+    }
+    
+    /* Selector de colores de nota */
+    .color-picker { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .color-circle { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .color-circle.active { border-color: #000; }
 
-        /* MODALES */
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000;
-        }
-        .modal.active { display: flex; }
-        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
-
-        .post-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 1rem; }
-        .type-btn { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: 0.75rem; text-align: center; }
-        .type-btn.active { background: #eef2ff; border-color: var(--primary); color: var(--primary); }
-    </style>
+    /* Portada de tipos de nota */
+    .post-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+    .type-btn {
+      padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.5rem;
+      background: white; cursor: pointer; font-size: 0.75rem; text-align: center;
+    }
+    .type-btn.active { background: #eef2ff; border-color: var(--primary); color: var(--primary); }
+  </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="color: var(--primary); margin-bottom: 10px;">Wall Escolar</h1>
-        <p style="color: #64748b; margin-bottom: 25px;">Tu espacio profesional de ideas</p>
-        <button onclick="login()" class="btn" style="width: 100%; justify-content: center; padding: 12px;">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Entrar con Google
+        <h1 style="color: var(--primary); margin-bottom: 5px;">Wall Escolar</h1>
+        <p style="color: #64748b; margin-bottom: 25px;">Muro Pro de Alberto</p>
+        <button onclick="login()" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Acceder con Google
         </button>
     </div>
 </div>
 
 <header id="main-header">
-    <div style="font-size: 1.2rem; font-weight: bold;">📌 Muro de Ideas Pro</div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-        <span id="user-name" style="font-size: 0.9rem;"></span>
-        <button onclick="logout()" class="btn btn-outline" style="color: white; border-color: white;">Salir</button>
-    </div>
+  <div class="logo">📌 Muro de Ideas Pro</div>
+  <div style="display: flex; gap: 1rem; align-items: center;">
+    <span id="user-display" style="font-size: 0.9rem;"></span>
+    <button onclick="logout()" class="btn btn-outline" style="color: white; border-color: white;">Salir</button>
+  </div>
 </header>
 
 <div class="toolbar" id="main-toolbar">
-    <button onclick="openModal()" class="btn">➕ Nueva Nota</button>
-    <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="Buscar en el muro..." oninput="filterNotes()">
-    </div>
+  <button class="btn btn-primary" onclick="openNoteModal()">➕ Nueva Nota</button>
+  
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar contenido..." oninput="filterNotes()">
+  </div>
+
+  <div style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+    <span style="font-size: 0.8rem; font-weight: bold;">FONDO:</span>
+    <div class="color-circle" style="background:#f8fafc; border: 1px solid #ddd;" onclick="changeBg('#f8fafc')"></div>
+    <div class="color-circle" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
+    <div class="color-circle" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
+    <div class="color-circle" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
+  </div>
 </div>
 
 <main id="board"></main>
 
 <div class="modal" id="noteModal">
-    <div class="modal-content">
-        <h3>✨ Crear Nueva Nota</h3>
-        <div class="form-group" style="margin-top: 15px;">
-            <label>Tipo de contenido</label>
-            <div class="post-types">
-                <button class="type-btn active" onclick="setType('text', this)">📝 Texto</button>
-                <button class="type-btn" onclick="setType('image', this)">🖼️ Imagen</button>
-                <button class="type-btn" onclick="setType('video', this)">🎬 Video</button>
-                <button class="type-btn" onclick="setType('link', this)">🔗 Enlace</button>
-                <button class="type-btn" onclick="setType('audio', this)">🎵 Audio</button>
-                <button class="type-btn" onclick="setType('file', this)">📎 Archivo</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Título</label>
-            <input type="text" id="noteTitle" placeholder="Ej: Idea importante">
-        </div>
-        <div class="form-group">
-            <label>Contenido / Descripción</label>
-            <textarea id="noteBody" rows="3"></textarea>
-        </div>
-        <div class="form-group" id="media-field" style="display:none;">
-            <label id="media-label">URL del Recurso (YouTube, Imgur, etc)</label>
-            <input type="text" id="noteMediaUrl" placeholder="https://...">
-        </div>
-        <div class="form-group">
-            <label>Etiquetas (comas)</label>
-            <input type="text" id="noteTags" placeholder="urgente, ideas, escuela">
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn" onclick="saveNote()" style="flex: 1; justify-content: center;">💾 Guardar</button>
-            <button class="btn btn-outline" onclick="closeModal()" style="flex: 1; justify-content: center;">Cancelar</button>
-        </div>
+  <div class="modal-content">
+    <h3 style="margin-bottom: 1rem;">Crear Nota</h3>
+    
+    <div class="post-types">
+      <button class="type-btn active" onclick="setNoteType('text', this)">📝 Texto</button>
+      <button class="type-btn" onclick="setNoteType('image', this)">🖼️ Imagen</button>
+      <button class="type-btn" onclick="setNoteType('video', this)">🎬 Video</button>
+      <button class="type-btn" onclick="setNoteType('link', this)">🔗 Link</button>
+      <button class="type-btn" onclick="setNoteType('audio', this)">🎵 Audio</button>
+      <button class="type-btn" onclick="setNoteType('file', this)">📎 Archivo</button>
     </div>
+
+    <div class="form-group">
+      <label>Título</label>
+      <input type="text" id="noteTitle" placeholder="Título de la nota">
+    </div>
+    
+    <div class="form-group">
+      <label>Cuerpo / Descripción</label>
+      <textarea id="noteBody" rows="4" placeholder="Escribe aquí..."></textarea>
+    </div>
+
+    <div class="form-group" id="media-field" style="display: none;">
+      <label id="media-label">URL del Recurso (YouTube, Imgur, etc.)</label>
+      <input type="text" id="noteMediaUrl" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+      <label>Color de nota</label>
+      <div class="color-picker">
+        <div class="color-circle active" style="background:#ffffff" onclick="setNoteColor('#ffffff', this)"></div>
+        <div class="color-circle" style="background:#fff740" onclick="setNoteColor('#fff740', this)"></div>
+        <div class="color-circle" style="background:#7efff5" onclick="setNoteColor('#7efff5', this)"></div>
+        <div class="color-circle" style="background:#ffaf40" onclick="setNoteColor('#ffaf40', this)"></div>
+        <div class="color-circle" style="background:#ffcccc" onclick="setNoteColor('#ffcccc', this)"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Etiquetas (separadas por coma)</label>
+      <input type="text" id="noteTags" placeholder="ej: trabajo, idea, importante">
+    </div>
+
+    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+      <button class="btn btn-primary" onclick="saveNote()" style="flex: 1; justify-content: center;">💾 Publicar</button>
+      <button class="btn btn-outline" onclick="closeNoteModal()" style="flex: 1; justify-content: center;">Cerrar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Configuración Firebase (Tus datos reales)
-    const firebaseConfig = {
-        apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
-        authDomain: "wall-5b79c.firebaseapp.com",
-        projectId: "wall-5b79c",
-        storageBucket: "wall-5b79c.firebasestorage.app",
-        messagingSenderId: "167646035095",
-        appId: "1:167646035095:web:8286c655f6b0986b33fdd2"
+  // CONFIGURACIÓN FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
+    authDomain: "wall-5b79c.firebaseapp.com",
+    projectId: "wall-5b79c",
+    storageBucket: "wall-5b79c.firebasestorage.app",
+    messagingSenderId: "167646035095",
+    appId: "1:167646035095:web:8286c655f6b0986b33fdd2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  let currentType = 'text';
+  let currentColor = '#ffffff';
+  let notesData = [];
+
+  // Auth State
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('main-header').style.display = 'flex';
+      document.getElementById('main-toolbar').style.display = 'flex';
+      document.getElementById('user-display').innerText = user.displayName;
+      listenToNotes(user.uid);
+    } else {
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('main-header').style.display = 'none';
+      document.getElementById('main-toolbar').style.display = 'none';
+    }
+  });
+
+  function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  function logout() { auth.signOut(); }
+
+  // UI Handlers
+  function openNoteModal() { document.getElementById('noteModal').classList.add('active'); }
+  function closeNoteModal() { document.getElementById('noteModal').classList.remove('active'); }
+  
+  function changeBg(color) { document.body.style.backgroundColor = color; }
+
+  function setNoteType(type, btn) {
+    currentType = type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('media-field').style.display = (type === 'text') ? 'none' : 'block';
+    document.getElementById('media-label').innerText = `Enlace de ${type}`;
+  }
+
+  function setNoteColor(color, el) {
+    currentColor = color;
+    document.querySelectorAll('.color-picker .color-circle').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Database Handlers
+  function saveNote() {
+    const title = document.getElementById('noteTitle').value;
+    const body = document.getElementById('noteBody').value;
+    const mediaUrl = document.getElementById('noteMediaUrl').value;
+    const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(t => t !== "");
+
+    if (!title || !body) return alert("Por favor, escribe un título y contenido.");
+
+    const newNote = {
+      title,
+      body,
+      mediaUrl: mediaUrl || null,
+      type: currentType,
+      color: currentColor,
+      tags: tags,
+      author: auth.currentUser.displayName,
+      authorId: auth.currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    db.collection("notes").add(newNote).then(() => {
+      // Reset Form
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteBody').value = '';
+      document.getElementById('noteMediaUrl').value = '';
+      document.getElementById('noteTags').value = '';
+      closeNoteModal();
+    }).catch(err => console.error("Error al guardar:", err));
+  }
 
-    let currentType = 'text';
-    let notesCache = [];
-
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('main-toolbar').style.display = 'flex';
-            document.getElementById('user-name').innerText = user.displayName;
-            listenNotes(user.uid);
-        } else {
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('main-header').style.display = 'none';
-            document.getElementById('main-toolbar').style.display = 'none';
-        }
+  function listenToNotes(uid) {
+    db.collection("notes").where("authorId", "==", uid).onSnapshot(snapshot => {
+      notesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderNotes(notesData);
     });
+  }
 
-    function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-    function logout() { auth.signOut(); }
+  function renderNotes(notes) {
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+    
+    // Ordenar por fecha
+    notes.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).forEach(note => {
+      const card = document.createElement('div');
+      card.className = 'note';
+      card.style.backgroundColor = note.color;
+      
+      let mediaContent = '';
+      if (note.mediaUrl) {
+        if (note.type === 'image') {
+          mediaContent = `<div class="note-media"><img src="${note.mediaUrl}" onerror="this.src='https://via.placeholder.com/300?text=Error+al+cargar+imagen'"></div>`;
+        } else if (note.type === 'video') {
+          if (note.mediaUrl.includes('youtube.com') || note.mediaUrl.includes('youtu.be')) {
+            const vidId = note.mediaUrl.split('v=')[1] || note.mediaUrl.split('/').pop();
+            mediaContent = `<div class="note-media"><iframe src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe></div>`;
+          } else {
+            mediaContent = `<div class="note-media"><video src="${note.mediaUrl}" controls></video></div>`;
+          }
+        } else if (note.type === 'link') {
+          mediaContent = `<div class="note-media"><a href="${note.mediaUrl}" target="_blank" style="font-size:0.8rem; word-break:break-all;">🔗 ${note.mediaUrl}</a></div>`;
+        } else if (note.type === 'audio') {
+          mediaContent = `<div class="note-media"><audio src="${note.mediaUrl}" controls style="width:100%"></audio></div>`;
+        }
+      }
 
-    function openModal() { document.getElementById('noteModal').classList.add('active'); }
-    function closeModal() { document.getElementById('noteModal').classList.remove('active'); }
+      card.innerHTML = `
+        <div class="note-header">
+          <span>Por ${note.author}</span>
+          <button onclick="deleteNote('${note.id}')" style="background:none; border:none; cursor:pointer;">🗑️</button>
+        </div>
+        <div class="note-content">
+          <h3>${note.title}</h3>
+          <p>${note.body}</p>
+          ${mediaContent}
+        </div>
+        <div class="note-footer">
+          ${note.tags ? note.tags.map(tag => `<span class="tag">#${tag}</span>`).join('') : ''}
+        </div>
+      `;
+      board.appendChild(card);
+    });
+  }
 
-    function setType(type, btn) {
-        currentType = type;
-        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('media-field').style.display = (type === 'text') ? 'none' : 'block';
-        document.getElementById('media-label').innerText = `URL de ${type}`;
+  function deleteNote(id) {
+    if (confirm("¿Seguro que quieres eliminar esta nota?")) {
+      db.collection("notes").doc(id).delete();
     }
+  }
 
-    function saveNote() {
-        const title = document.getElementById('noteTitle').value;
-        const body = document.getElementById('noteBody').value;
-        const media = document.getElementById('noteMediaUrl').value;
-        const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim());
-
-        if (!title || !body) return alert("Completa título y contenido");
-
-        db.collection("notes").add({
-            title, content: body, mediaUrl: media, type: currentType, tags,
-            author: auth.currentUser.displayName, authorId: auth.currentUser.uid,
-            date: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            closeModal();
-            // Reset campos
-            document.getElementById('noteTitle').value = '';
-            document.getElementById('noteBody').value = '';
-            document.getElementById('noteMediaUrl').value = '';
-        });
-    }
-
-    function listenNotes(uid) {
-        db.collection("notes").where("authorId", "==", uid).onSnapshot(snap => {
-            notesCache = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-            renderNotes(notesCache);
-        });
-    }
-
-    function renderNotes(arr) {
-        const board = document.getElementById('board');
-        board.innerHTML = '';
-        arr.forEach(n => {
-            const el = document.createElement('div');
-            el.className = 'note';
-            
-            let mediaHtml = '';
-            if (n.mediaUrl) {
-                if (n.type === 'video' && (n.mediaUrl.includes('youtube') || n.mediaUrl.includes('youtu.be'))) {
-                    const id = n.mediaUrl.split('v=')[1] || n.mediaUrl.split('/').pop();
-                    mediaHtml = `<iframe src="https://www.youtube.com/embed/${id}" frameborder="0"></iframe>`;
-                } else if (n.type === 'image') {
-                    mediaHtml = `<img src="${n.mediaUrl}">`;
-                } else if (n.type === 'link') {
-                    mediaHtml = `<a href="${n.mediaUrl}" target="_blank" style="display:block; background:#f1f5f9; padding:10px; border-radius:8px; margin-top:10px; text-decoration:none; font-size:0.8rem;">🔗 Ver enlace</a>`;
-                }
-            }
-
-            el.innerHTML = `
-                <div class="note-header">
-                    <div class="note-author">
-                        <div class="avatar-mini">${n.author[0]}</div>
-                        <span>${n.author}</span>
-                    </div>
-                    <button onclick="deleteNote('${n.id}')" style="border:none; background:none; cursor:pointer;">🗑️</button>
-                </div>
-                <h4 style="margin-bottom:8px">${n.title}</h4>
-                <p style="font-size:0.9rem; color:#475569">${n.content}</p>
-                ${mediaHtml}
-                <div style="margin-top:10px">${n.tags.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
-            `;
-            board.appendChild(el);
-        });
-    }
-
-    function deleteNote(id) { if(confirm("¿Eliminar?")) db.collection("notes").doc(id).delete(); }
-
-    function filterNotes() {
-        const val = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = notesCache.filter(n => 
-            n.title.toLowerCase().includes(val) || 
-            n.content.toLowerCase().includes(val) ||
-            n.tags.some(t => t.toLowerCase().includes(val))
-        );
-        renderNotes(filtered);
-    }
+  function filterNotes() {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = notesData.filter(n => 
+      n.title.toLowerCase().includes(term) || 
+      n.body.toLowerCase().includes(term) ||
+      (n.tags && n.tags.some(t => t.toLowerCase().includes(term)))
+    );
+    renderNotes(filtered);
+  }
 </script>
 </body>
 </html>
