@@ -24,6 +24,7 @@
         /* PORTADA ESTILO PADLET */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
+            /* Imagen de fondo profesional y moderna */
             background: linear-gradient(rgba(108, 92, 231, 0.8), rgba(9, 132, 227, 0.8)), 
                         url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
@@ -31,6 +32,7 @@
             display:none; flex-direction:column; justify-content:center; align-items:center; z-index:2000; 
             text-align: center;
             color: white;
+            padding-bottom: 50px; /* Espacio para el pie de página */
         }
 
         .login-card { 
@@ -62,6 +64,17 @@
             transition: all 0.3s;
         }
         .btn-google:hover { background: #f1f2f6; border-color: var(--primary); transform: translateY(-2px); }
+
+        /* Pie de página de copyright */
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            opacity: 0.8;
+            color: white;
+        }
 
         /* APP HEADER */
         #header { 
@@ -108,6 +121,7 @@
             Continuar con Google
         </button>
     </div>
+    <div class="copyright">Copyright 2026 - Dessarrollado por Marcelo Tonini</div>
 </div>
 
 <div id="header">
@@ -126,6 +140,7 @@
 <div id="canvas"></div>
 
 <script>
+  // Configuración de tu proyecto "wall-5b79c"
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
