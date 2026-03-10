@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Escolar Pro</title>
+    <title>Muro Escolar - Estilo Padlet</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -17,9 +17,9 @@
 
         body { 
             margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background-color: #81ecec; /* Color por defecto */
+            background-color: #81ecec; /* Color inicial */
             background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png'); 
-            min-height: 100vh; transition: background 0.4s;
+            min-height: 100vh; transition: background 0.5s;
         }
 
         /* --- HEADER CON SELECTOR DE FONDO --- */
@@ -34,7 +34,7 @@
 
         #canvas { padding: 25px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
 
-        /* --- ESTILO DE LAS NOTAS --- */
+        /* --- NOTAS --- */
         .note { 
             padding: 35px 15px 20px; border-radius: 2px; box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
             position: relative; width: 280px; min-height: 200px; box-sizing: border-box;
@@ -47,22 +47,21 @@
 
         .note img { width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 180px; object-fit: cover; }
         .note h3 { margin: 0; font-size: 0.7em; color: rgba(0,0,0,0.4); text-transform: uppercase; }
-        .note p { margin: 10px 0 0; font-size: 1.1em; color: #2d3436; font-weight: 500; }
+        .note p { margin: 10px 0 0; font-size: 1.1em; color: #2d3436; }
 
+        /* Botones siempre visibles */
         .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
-        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 1em; }
+        .action-btn { background: white; border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 1em; }
 
-        /* --- VENTANA MODAL NUEVA NOTA --- */
+        /* --- MODAL DE CREACIÓN --- */
         #note-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
         }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        /* Selector de colores para la nota */
-        .color-selector { display: flex; gap: 10px; margin: 15px 0; justify-content: center; }
-        .color-opt { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
-        .color-opt.selected { border-color: #2d3436; transform: scale(1.1); }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; }
+        .color-selector { display: flex; gap: 10px; margin: 15px 0; }
+        .color-opt { width: 35px; height: 35px; border-radius: 5px; cursor: pointer; border: 2px solid #eee; }
+        .color-opt.selected { border-color: #333; transform: scale(1.1); }
 
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #6c5ce7; display:none; flex-direction:column; justify-content:center; align-items:center; color:white; }
         .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
@@ -72,18 +71,18 @@
 
 <div id="login-screen">
     <h1>Wall Escolar</h1>
-    <button onclick="login()" style="padding: 15px 30px; border-radius: 10px; border:none; cursor: pointer; font-weight:bold;">Entrar con Google</button>
+    <button onclick="login()" style="padding: 15px 30px; cursor: pointer;">Entrar con Google</button>
 </div>
 
 <div id="header">
     <div class="bg-controls">
+        <span style="font-size: 0.8em;">Fondo Muro:</span>
         <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
         <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
         <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
         <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
-        <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
     </div>
-    <div style="display:flex; gap:15px; align-items: center;">
+    <div style="display:flex; gap:10px;">
         <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
         <button class="btn-add" onclick="openModal()">+ NUEVA NOTA</button>
     </div>
@@ -93,27 +92,27 @@
 
 <div id="note-modal">
     <div class="modal-content">
-        <h3 style="margin-top:0">Nueva Nota</h3>
-        <textarea id="note-text" placeholder="Escribe tu mensaje..." style="width:100%; height:100px; margin-bottom:10px; padding:10px; border-radius:8px; border:1px solid #ddd; resize:none;"></textarea>
-        <input type="text" id="note-img" placeholder="Link de imagen (opcional)" style="width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;">
+        <h3>Nueva Nota</h3>
+        <textarea id="note-text" placeholder="Escribe aquí..." style="width:100%; height:100px; margin-bottom:10px;"></textarea>
+        <input type="text" id="note-img" placeholder="Link de imagen (opcional)" style="width:100%; margin-bottom:10px;">
         
-        <p style="margin-bottom:5px; font-size:0.9em;">Elige el color de tu nota:</p>
+        <p>Color de la nota:</p>
         <div class="color-selector">
             <div class="color-opt selected" style="background:#fff740" onclick="selectColor('#fff740', this)"></div>
             <div class="color-opt" style="background:#7efff5" onclick="selectColor('#7efff5', this)"></div>
             <div class="color-opt" style="background:#ffaf40" onclick="selectColor('#ffaf40', this)"></div>
             <div class="color-opt" style="background:#ffcccc" onclick="selectColor('#ffcccc', this)"></div>
-            <div class="color-opt" style="background:#cd84f1" onclick="selectColor('#cd84f1', this)"></div>
         </div>
         
-        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:10px;">
-            <button onclick="closeModal()" style="border:none; background:none; cursor:pointer;">Cancelar</button>
-            <button onclick="saveNote()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">Publicar</button>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeModal()">Cancelar</button>
+            <button onclick="saveNote()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Publicar</button>
         </div>
     </div>
 </div>
 
 <script>
+  // Tu configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -141,11 +140,10 @@
   });
 
   function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
+  function logout() { auth.signOut(); }
 
   function openModal() { document.getElementById('note-modal').style.display = 'flex'; }
   function closeModal() { document.getElementById('note-modal').style.display = 'none'; }
-  
   function selectColor(color, el) {
     selectedNoteColor = color;
     document.querySelectorAll('.color-opt').forEach(opt => opt.classList.remove('selected'));
@@ -174,20 +172,19 @@
     });
   }
 
+  function deleteNote(id) { if(confirm("¿Borrar?")) db.collection("notes").doc(id).delete(); }
   function editNote(id, current) {
-    const n = prompt("Editar texto:", current);
+    const n = prompt("Editar:", current);
     if(n) db.collection("notes").doc(id).update({content: n});
   }
 
-  function deleteNote(id) { if(confirm("¿Eliminar nota?")) db.collection("notes").doc(id).delete(); }
-
   function listenNotes(uid) {
-    // Escucha de Firebase sin filtros complejos para evitar errores de índice
+    // Escucha global para evitar el error de índice de Firebase
     db.collection("notes").onSnapshot(snapshot => {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
         
-        // Ordenar por fecha manualmente
+        // Ordenamos por fecha en el código
         const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
 
         docs.forEach(doc => {
