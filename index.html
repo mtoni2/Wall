@@ -53,15 +53,15 @@
         }
 
         #canvas { 
-            padding: 25px 15px; display: flex; flex-direction: column; gap: 25px; align-items: center; 
+            padding: 25px 15px; display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; 
         }
 
-        /* --- NOTAS (Ajustadas para PC y Móvil) --- */
+        /* --- NOTAS (Diseño para PC) --- */
         .note { 
             padding: 30px 20px 25px; border-radius: 2px; 
             box-shadow: 8px 8px 15px rgba(0,0,0,0.2); 
             position: relative; transition: 0.3s;
-            width: 90%; max-width: 350px; 
+            width: 280px; /* Tamaño ideal para que entren varias en la PC */
             min-height: 200px;
             display: flex; flex-direction: column; box-sizing: border-box;
         }
@@ -72,7 +72,7 @@
             box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 250px; object-fit: cover; }
+        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 200px; object-fit: cover; }
         .note h3 { margin: 0 0 8px 0; font-size: 0.75em; text-transform: uppercase; color: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,0,0,0.1); }
         .note p { margin: 0; font-size: 1.1em; line-height: 1.4; color: #333; word-wrap: break-word; flex-grow: 1; }
 
@@ -84,7 +84,7 @@
 </head>
 <body>
 
-<div id="loading-screen" style="text-align:center; padding:50px;"><h3>Cargando sistema...</h3></div>
+<div id="loading-screen" style="text-align:center; padding:50px; color: white;"><h3>Cargando sistema...</h3></div>
 
 <div id="login-screen">
     <div style="margin-bottom: 20px;">
@@ -130,7 +130,7 @@
     if (user) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('header').style.display = 'flex';
-        listenNotes();
+        listenNotes(user.uid);
     } else {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('header').style.display = 'none';
@@ -170,37 +170,40 @@
 
   function deleteNote(id) { if(confirm("¿Borrar nota?")) db.collection("notes").doc(id).delete(); }
 
-  function listenNotes() {
-    const currentUser = auth.currentUser;
-    // Quitamos el filtro 'where' para evitar el error de índice y que no desaparezcan las notas
+  function listenNotes(uid) {
+    // Quitamos el filtro estricto de la base de datos para evitar errores de índice
     db.collection("notes")
       .orderBy("date", "desc")
       .onSnapshot(snapshot => {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
+        
         snapshot.forEach(doc => {
             const data = doc.data();
-            // PRIVACIDAD: Solo el autor ve sus botones
-            const isOwner = data.authorId === currentUser.uid;
             
-            const noteDiv = document.createElement('div');
-            noteDiv.className = 'note';
-            noteDiv.style.backgroundColor = data.color;
-            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
-            noteDiv.innerHTML = `
-                <div class="actions">
-                    ${isOwner ? `
+            // Filtramos visualmente para que solo veas tus notas
+            if (data.authorId === uid) {
+                const noteDiv = document.createElement('div');
+                noteDiv.className = 'note';
+                noteDiv.style.backgroundColor = data.color;
+                noteDiv.style.transform = `rotate(${data.rotation}deg)`;
+                noteDiv.innerHTML = `
+                    <div class="actions">
                         <button class="action-btn" onclick="addImageToNote('${doc.id}')" title="Imagen">🖼️</button>
                         <button class="action-btn" onclick="editNote('${doc.id}', '${data.content.replace(/'/g, "\\'")}')" title="Editar">✏️</button>
                         <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red" title="Borrar">X</button>
-                    ` : ''}
-                </div>
-                ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
-                <h3>${data.author}</h3>
-                <p>${data.content}</p>
-            `;
-            canvas.appendChild(noteDiv);
+                    </div>
+                    ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
+                    <h3>${data.author}</h3>
+                    <p>${data.content}</p>
+                `;
+                canvas.appendChild(noteDiv);
+            }
         });
+        
+        if (canvas.innerHTML === "") {
+            canvas.innerHTML = "<p style='color:white; font-weight:bold;'>No tienes notas creadas.</p>";
+        }
     });
   }
 </script>
