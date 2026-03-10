@@ -15,20 +15,17 @@
             --success: #00b894;
             --danger: #d63031;
             --dark: #2d3436;
-            
-            /* --- COLOR VERDE AGUA SOLICITADO --- */
-            --bg-color: #81ecec; /* Un verde agua fresco y moderno */
+            --bg-color: #81ecec; 
         }
 
         body { 
             margin: 0; 
-            font-family: 'Segoe UI', sans-serif; 
-            /* Fondo verde agua con textura suave de papel */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: var(--bg-color) url('https://www.transparenttextures.com/patterns/notebook-dark.png'); 
             min-height: 100vh;
         }
 
-        /* --- PANTALLAS DE ESTADO --- */
+        /* --- PANTALLAS --- */
         #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display: flex; justify-content: center; align-items: center; z-index: 5000; }
         
         #login-screen { 
@@ -37,81 +34,73 @@
                         url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-size: cover; background-position: center;
             display:none; flex-direction:column; justify-content:center; align-items:center; z-index:4000; 
-            text-align: center; color: white;
+            text-align: center; color: white; padding: 20px;
         }
 
         .login-card { 
-            background: white; padding: 50px 40px; border-radius: 24px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 350px; color: var(--dark);
+            background: white; padding: 40px; border-radius: 24px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 350px; color: var(--dark);
+            margin-bottom: 20px;
         }
 
         .btn-google { 
             background: white; color: var(--dark); border: 2px solid #dfe6e9; padding: 15px; 
-            border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1em;
-            display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+            border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .btn-google:hover { background: #f1f2f6; border-color: var(--primary); transform: translateY(-2px); }
 
-        .copyright { position: absolute; bottom: 20px; font-size: 0.9em; opacity: 0.9; }
+        /* CORRECCIÓN PORTADA: Espaciado para evitar que se monte al copyright */
+        .welcome-text { margin-bottom: 30px; }
+        .copyright { font-size: 0.85em; margin-top: 20px; opacity: 0.9; }
 
-        /* --- INTERFAZ DEL MURO --- */
+        /* --- INTERFAZ --- */
         #header { 
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
-            padding: 15px 40px; display: none; justify-content: space-between; align-items:center; 
+            background: rgba(255, 255, 255, 0.96); padding: 10px 40px; 
+            display: none; justify-content: space-between; align-items:center; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
         }
 
         #canvas { 
-            padding: 40px; display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; 
+            padding: 30px; display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; 
         }
 
-        /* --- NOTAS (POST-ITS) --- */
+        /* --- NOTAS --- */
         .note { 
-            padding: 25px; border-radius: 3px; 
-            box-shadow: 8px 8px 15px rgba(0,0,0,0.25); 
-            position: relative; min-height: 160px; transition: 0.3s;
-            display: flex; flex-direction: column;
+            padding: 20px; border-radius: 2px; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2); 
+            position: relative; transition: 0.3s;
         }
         
-        /* El Pin or Chinche */
-        .note::before { 
-            content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            width: 18px; height: 18px; background: #e74c3c; border-radius: 50%; 
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.4); z-index: 2;
-        }
+        .note img { width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 300px; object-fit: cover; }
+        .note h3 { margin: 0 0 8px 0; font-size: 0.8em; text-transform: uppercase; color: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(0,0,0,0.1); }
+        
+        /* CORRECCIÓN LETRAS: Tamaño normalizado */
+        .note p { margin: 0; font-size: 1.05em; line-height: 1.3; color: #333; word-wrap: break-word; }
 
-        .note img { 
-            width: 100%; border-radius: 4px; margin-bottom: 15px; 
-            max-height: 350px; object-fit: cover;
-        }
-
-        .note h3 { margin: 0 0 10px 0; font-size: 0.9em; text-transform: uppercase; color: rgba(0,0,0,0.6); border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
-        .note p { margin: 0; font-size: 1.1em; line-height: 1.4; color: #2d3436; word-wrap: break-word; }
-
-        /* --- ACCIONES CON LA X Y EL LINK RESTAURADOS --- */
-        .actions { position: absolute; top: 8px; right: 10px; display: flex; gap: 10px; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; font-weight: bold; color: rgba(0,0,0,0.25); }
-        .action-btn:hover { color: #000; }
+        .actions { position: absolute; top: 5px; right: 5px; display: flex; gap: 5px; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; opacity: 0.3; }
+        .action-btn:hover { opacity: 1; }
         .btn-delete:hover { color: var(--danger); }
+        .btn-edit:hover { color: var(--primary); }
 
-        .btn-add { background: var(--success); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen"><h2>Iniciando Muro Escolar...</h2></div>
+<div id="loading-screen"><h2>Cargando Muro...</h2></div>
 
 <div id="login-screen">
-    <div style="margin-bottom: 40px;">
-        <h1 style="font-size: 3.5em; margin: 0; text-shadow: 2px 4px 10px rgba(0,0,0,0.3);">Wall Escolar</h1>
-        <p style="font-size: 1.5em; opacity: 0.95;">Ideas que cobran vida.</p>
+    <div class="welcome-text">
+        <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
+        <p style="font-size: 1.2em;">Ideas que cobran vida.</p>
     </div>
     <div class="login-card">
-        <h1>¡Bienvenido!</h1>
-        <p>Inicia sesión con Google para participar.</p>
+        <h3>¡Hola de nuevo!</h3>
+        <p>Inicia sesión para participar.</p>
         <button class="btn-google" onclick="login()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
             Continuar con Google
         </button>
     </div>
@@ -119,15 +108,10 @@
 </div>
 
 <div id="header">
-    <div style="display:flex; align-items:center; gap:12px">
-        <span style="font-size: 1.5em">📌</span>
-        <h2 style="margin:0; font-size:1.3em; color:var(--dark)">Ideas en Acción</h2>
-    </div>
-    <div style="display:flex; align-items:center; gap:25px">
-        <div style="text-align:right">
-            <div id="user-name" style="font-weight: 700; font-size:0.95em"></div>
-            <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.85em; padding:0">Salir</button>
-        </div>
+    <h2 style="margin:0; font-size:1.1em;">📌 Ideas en Acción</h2>
+    <div style="display:flex; align-items:center; gap:20px">
+        <div id="user-name" style="font-weight: bold; font-size:0.9em"></div>
+        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer;">Salir</button>
         <button class="btn-add" onclick="addNewNote()">+ Nueva Nota</button>
     </div>
 </div>
@@ -135,7 +119,6 @@
 <div id="canvas"></div>
 
 <script>
-  // Tu configuración de Firebase wall-5b79c
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -161,44 +144,43 @@
     } else {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('header').style.display = 'none';
-        document.getElementById('canvas').innerHTML = "";
     }
   });
 
   function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  function logout() { if(confirm("¿Seguro que quieres cerrar sesión?")) auth.signOut(); }
+  function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
 
   function addNewNote() {
-    const text = prompt("1. Escribí el contenido de tu nota:");
-    if (!text || text.trim() === "") return;
-    
-    const imgUrl = prompt("2. ¿Querés una foto? Pegá el LINK acá o dejalo vacío:");
+    const text = prompt("Escribí tu mensaje:");
+    if (!text) return;
+    const imgUrl = prompt("¿Link de imagen? (Opcional):");
     
     db.collection("notes").add({
         content: text,
-        imageUrl: imgUrl && imgUrl.trim() !== "" ? imgUrl : null,
+        imageUrl: imgUrl || null,
         author: auth.currentUser.displayName,
         authorId: auth.currentUser.uid,
         color: colors[Math.floor(Math.random() * colors.length)],
-        rotation: (Math.random() * 8 - 4).toFixed(1),
+        rotation: (Math.random() * 6 - 3).toFixed(1),
         date: firebase.firestore.FieldValue.serverTimestamp()
     });
   }
 
-  // FUNCIÓN RESTAURADA: Permite agregar el link después de crear la nota
-  function addImageToNote(id) {
-    const url = prompt("Pega el LINK DIRECTO de la imagen acá (debe terminar en .jpg, .png or .gif):");
-    if (url && url.trim() !== "") {
-        db.collection("notes").doc(id).update({
-            imageUrl: url.trim()
-        });
+  // FUNCIÓN RESTAURADA: Editar nota
+  function editNote(id, currentText) {
+    const newText = prompt("Edita tu mensaje:", currentText);
+    if (newText && newText !== currentText) {
+        db.collection("notes").doc(id).update({ content: newText });
     }
   }
 
+  function addImageToNote(id) {
+    const url = prompt("Pega el link de la imagen:");
+    if (url) db.collection("notes").doc(id).update({ imageUrl: url });
+  }
+
   function deleteNote(id) { 
-    if(confirm("¿Borrar esta nota permanentemente?")) {
-        db.collection("notes").doc(id).delete();
-    }
+    if(confirm("¿Borrar nota?")) db.collection("notes").doc(id).delete();
   }
 
   function listenNotes() {
@@ -210,13 +192,14 @@
             const isOwner = data.authorId === auth.currentUser.uid;
             const noteDiv = document.createElement('div');
             noteDiv.className = 'note';
-            noteDiv.style.backgroundColor = data.color || '#fff9c4';
-            noteDiv.style.transform = `rotate(${data.rotation || 0}deg)`;
+            noteDiv.style.backgroundColor = data.color;
+            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
             
             noteDiv.innerHTML = `
                 <div class="actions">
-                    ${isOwner ? `<button class="action-btn" onclick="addImageToNote('${doc.id}')" title="Añadir Imagen">🖼️</button>` : ''}
-                    ${isOwner ? `<button class="action-btn btn-delete" onclick="deleteNote('${doc.id}')" title="Borrar">X</button>` : ''}
+                    ${isOwner ? `<button class="action-btn" onclick="addImageToNote('${doc.id}')">🖼️</button>` : ''}
+                    ${isOwner ? `<button class="action-btn btn-edit" onclick="editNote('${doc.id}', '${data.content}')">✏️</button>` : ''}
+                    ${isOwner ? `<button class="action-btn btn-delete" onclick="deleteNote('${doc.id}')">X</button>` : ''}
                 </div>
                 ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
                 <h3>${data.author}</h3>
