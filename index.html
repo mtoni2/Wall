@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Escolar Pro - Marcelo Tonini</title>
+    <title>Wall Escolar Pro - Marcelo Tonini</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -23,79 +23,80 @@
             min-height: 100vh; transition: background 0.5s;
         }
 
-        /* --- PANTALLA DE INICIO (RECUPERADA) --- */
+        /* --- PANTALLA DE INICIO ELEGANTE --- */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: linear-gradient(rgba(108, 92, 231, 0.8), rgba(9, 132, 227, 0.8)), 
-                        url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background: linear-gradient(rgba(108, 92, 231, 0.85), rgba(9, 132, 227, 0.85)), 
+                        url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
             background-size: cover; background-position: center;
             display:none; flex-direction:column; justify-content:center; align-items:center; z-index:4000; 
-            text-align: center; color: white; padding: 20px; box-sizing: border-box;
+            text-align: center; color: white;
         }
 
         .login-card { 
-            background: white; padding: 30px; border-radius: 24px; 
+            background: white; padding: 35px; border-radius: 24px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436;
         }
 
         /* --- INTERFAZ PRINCIPAL --- */
         #header { 
-            background: rgba(255, 255, 255, 0.96); padding: 10px 15px; 
+            background: rgba(255, 255, 255, 0.96); padding: 12px 20px; 
             display: none; justify-content: space-between; align-items:center; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
         }
 
-        .bg-controls { display: flex; gap: 8px; align-items: center; }
-        .bg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+        .bg-controls { display: flex; gap: 10px; align-items: center; }
+        .bg-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        #canvas { padding: 25px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        #canvas { padding: 30px; display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; }
 
         .note { 
-            padding: 35px 15px 20px; border-radius: 2px; box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
-            position: relative; width: 280px; min-height: 200px; box-sizing: border-box;
+            padding: 40px 20px 25px; border-radius: 2px; box-shadow: 8px 8px 15px rgba(0,0,0,0.2);
+            position: relative; width: 280px; min-height: 220px; box-sizing: border-box;
         }
         
         .note::before { 
-            content: ""; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-            width: 16px; height: 16px; background: #ff7675; border-radius: 50%; 
+            content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 18px; height: 18px; background: #ff7675; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .note img { width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 180px; object-fit: cover; }
-        .note h3 { margin: 0; font-size: 0.7em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .note p { margin: 10px 0 0; font-size: 1.1em; color: #2d3436; line-height: 1.4; }
+        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 180px; object-fit: cover; }
+        .note h3 { margin: 0; font-size: 0.75em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .note p { margin: 12px 0 0; font-size: 1.1em; color: #2d3436; line-height: 1.4; font-weight: 500; }
 
-        .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
-        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+        .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 5px; border-radius: 5px; cursor: pointer; font-size: 1em; }
 
-        /* --- MODALES --- */
+        /* --- FORMULARIO / MODAL --- */
         #note-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
+            background: rgba(0,0,0,0.75); display: none; justify-content: center; align-items: center; z-index: 5000;
         }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; }
+        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 1em; }
         
-        .color-selector { display: flex; gap: 8px; margin: 15px 0; justify-content: center; }
-        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid #eee; }
-        .color-opt.selected { border-color: #333; transform: scale(1.1); }
+        .color-selector { display: flex; gap: 10px; margin: 15px 0; justify-content: center; }
+        .color-opt { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid #eee; }
+        .color-opt.selected { border-color: #333; transform: scale(1.15); }
 
-        .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1em; }
     </style>
 </head>
 <body id="main-body">
 
 <div id="login-screen">
-    <div style="margin-bottom: 20px;">
-        <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
-        <p>Tu espacio personal de ideas.</p>
+    <div style="margin-bottom: 25px;">
+        <h1 style="font-size: 3.5em; margin: 0;">Wall Escolar</h1>
+        <p style="font-size: 1.2em; opacity: 0.9;">Tu espacio personal de ideas.</p>
     </div>
     <div class="login-card">
-        <h3>¡Bienvenido!</h3>
-        <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold;">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="14" style="vertical-align: middle; margin-right: 8px;">
+        <h3 style="margin-top:0">¡Bienvenido!</h3>
+        <button onclick="login()" style="width:100%; padding: 14px; border-radius: 12px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
             Entrar con Google
         </button>
     </div>
-    <p style="margin-top:20px; font-size:0.8em;">Copyright 2026 - Marcelo Tonini</p>
+    <p style="margin-top:30px; font-size:0.9em;">Copyright 2026 - Marcelo Tonini</p>
 </div>
 
 <div id="header">
@@ -105,10 +106,10 @@
         <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
         <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
         <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
-    </div>
+        <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div> </div>
     <div style="display:flex; gap:15px; align-items: center;">
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold; font-size:0.8em">SALIR</button>
-        <button class="btn-add" onclick="openModal()">+ NUEVA NOTA</button>
+        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
+        <button onclick="openModal()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-weight:bold;">+ NUEVA NOTA</button>
     </div>
 </div>
 
@@ -116,23 +117,21 @@
 
 <div id="note-modal">
     <div class="modal-content">
-        <h3 id="modal-title">Nueva Nota</h3>
-        <textarea id="note-text" placeholder="Escribe algo..." style="width:100%; height:100px; margin-bottom:10px; padding:10px; box-sizing:border-box; border-radius:8px; border:1px solid #ddd; resize:none;"></textarea>
-        <input type="text" id="note-img" placeholder="Link de imagen (opcional)" style="width:100%; padding:10px; box-sizing:border-box; border-radius:8px; border:1px solid #ddd; margin-bottom:10px;">
+        <h2 id="modal-title" style="margin-top:0">Nueva Nota</h2>
+        <textarea id="note-text" class="modal-input" placeholder="Escribe tu idea aquí..." style="height:120px; resize:none;"></textarea>
+        <input type="text" id="note-img" class="modal-input" placeholder="Link de la imagen (opcional)">
         
-        <p style="margin:5px 0; font-size:0.9em">Color:</p>
-        <div class="color-selector" id="note-color-picker">
-            <div class="color-opt selected" style="background:#fff740" onclick="selectColor('#fff740', this)"></div>
-            <div class="color-opt" style="background:#7efff5" onclick="selectColor('#7efff5', this)"></div>
-            <div class="color-opt" style="background:#ffaf40" onclick="selectColor('#ffaf40', this)"></div>
-            <div class="color-opt" style="background:#ffcccc" onclick="selectColor('#ffcccc', this)"></div>
-            <div class="color-opt" style="background:#cd84f1" onclick="selectColor('#cd84f1', this)"></div>
+        <p style="margin:5px 0; font-weight:bold">Color de nota:</p>
+        <div class="color-selector">
+            <div class="color-opt selected" style="background:#fff740" onclick="selectNoteColor('#fff740', this)"></div>
+            <div class="color-opt" style="background:#7efff5" onclick="selectNoteColor('#7efff5', this)"></div>
+            <div class="color-opt" style="background:#ffaf40" onclick="selectNoteColor('#ffaf40', this)"></div>
+            <div class="color-opt" style="background:#ffcccc" onclick="selectNoteColor('#ffcccc', this)"></div>
+            <div class="color-opt" style="background:#cd84f1" onclick="selectNoteColor('#cd84f1', this)"></div>
         </div>
         
-        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:15px;">
-            <button onclick="closeModal()" style="border:none; background:none; cursor:pointer;">Cancelar</button>
-            <button id="save-btn" onclick="saveNote()" style="background:var(--success); color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold;">Publicar</button>
-        </div>
+        <button class="btn-save" onclick="saveNote()">PUBLICAR</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:#636e72; margin-top:10px; cursor:pointer;">Cancelar</button>
     </div>
 </div>
 
@@ -150,8 +149,8 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  let selectedNoteColor = '#fff740';
-  let editingId = null;
+  let currentNoteColor = '#fff740';
+  let editingNoteId = null;
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -168,29 +167,18 @@
   function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
 
   function openModal(id = null, text = '', img = '', color = '#fff740') {
-    editingId = id;
+    editingNoteId = id;
     document.getElementById('modal-title').innerText = id ? "Editar Nota" : "Nueva Nota";
     document.getElementById('note-text').value = text;
     document.getElementById('note-img').value = img;
-    selectedNoteColor = color;
-    
-    document.querySelectorAll('.color-opt').forEach(opt => {
-        opt.classList.toggle('selected', opt.style.backgroundColor === hexToRgb(color));
-    });
-
+    currentNoteColor = color;
     document.getElementById('note-modal').style.display = 'flex';
-  }
-
-  function hexToRgb(hex) {
-    const div = document.createElement("div");
-    div.style.backgroundColor = hex;
-    return div.style.backgroundColor;
   }
 
   function closeModal() { document.getElementById('note-modal').style.display = 'none'; }
   
-  function selectColor(color, el) {
-    selectedNoteColor = color;
+  function selectNoteColor(color, el) {
+    currentNoteColor = color;
     document.querySelectorAll('.color-opt').forEach(opt => opt.classList.remove('selected'));
     el.classList.add('selected');
   }
@@ -202,18 +190,18 @@
     const img = document.getElementById('note-img').value;
     if (!text.trim()) return;
 
-    const noteData = {
+    const data = {
         content: text,
         imageUrl: img || null,
-        color: selectedNoteColor,
+        color: currentNoteColor,
         date: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    if (editingId) {
-        db.collection("notes").doc(editingId).update(noteData).then(closeModal);
+    if (editingNoteId) {
+        db.collection("notes").doc(editingNoteId).update(data).then(closeModal);
     } else {
         db.collection("notes").add({
-            ...noteData,
+            ...data,
             author: auth.currentUser.displayName,
             authorId: auth.currentUser.uid,
             rotation: (Math.random() * 6 - 3).toFixed(1)
@@ -221,32 +209,30 @@
     }
   }
 
-  function deleteNote(id) { if(confirm("¿Borrar permanentemente?")) db.collection("notes").doc(id).delete(); }
+  function deleteNote(id) { if(confirm("¿Eliminar nota?")) db.collection("notes").doc(id).delete(); }
 
   function listenNotes(uid) {
-    db.collection("notes").onSnapshot(snapshot => {
+    db.collection("notes").where("authorId", "==", uid).onSnapshot(snapshot => {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
         const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
 
         docs.forEach(doc => {
             const data = doc.data();
-            if (data.authorId === uid) {
-                const noteDiv = document.createElement('div');
-                noteDiv.className = 'note';
-                noteDiv.style.backgroundColor = data.color;
-                noteDiv.style.transform = `rotate(${data.rotation}deg)`;
-                noteDiv.innerHTML = `
-                    <div class="actions">
-                        <button class="action-btn" onclick="openModal('${doc.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
-                        <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:var(--danger)">X</button>
-                    </div>
-                    ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
-                    <h3>${data.author}</h3>
-                    <p>${data.content}</p>
-                `;
-                canvas.appendChild(noteDiv);
-            }
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note';
+            noteDiv.style.backgroundColor = data.color;
+            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
+            noteDiv.innerHTML = `
+                <div class="actions">
+                    <button class="action-btn" onclick="openModal('${doc.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
+                    <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
+                </div>
+                ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
+                <h3>${data.author}</h3>
+                <p>${data.content}</p>
+            `;
+            canvas.appendChild(noteDiv);
         });
     });
   }
