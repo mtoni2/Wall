@@ -23,7 +23,6 @@
             min-height: 100vh; transition: background 0.5s;
         }
 
-        /* --- PORTADA --- */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: linear-gradient(rgba(108, 92, 231, 0.8), rgba(9, 132, 227, 0.8)), 
@@ -37,11 +36,18 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436;
         }
 
-        /* --- CABECERA --- */
         #header { 
             background: rgba(255, 255, 255, 0.96); padding: 12px 20px; 
-            display: none; justify-content: space-between; align-items:center; 
+            display: none; flex-direction: column; gap: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
+        }
+
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+
+        .search-container { width: 100%; }
+        #search-input { 
+            width: 100%; padding: 8px 12px; border-radius: 20px; border: 1px solid #dfe6e9; 
+            font-size: 0.9em; outline: none; box-sizing: border-box;
         }
 
         .bg-controls { display: flex; gap: 10px; align-items: center; }
@@ -51,7 +57,7 @@
 
         .note { 
             padding: 40px 20px 25px; border-radius: 2px; box-shadow: 8px 8px 15px rgba(0,0,0,0.2);
-            position: relative; width: 280px; min-height: 220px; box-sizing: border-box;
+            position: relative; width: 280px; min-height: 220px; box-sizing: border-box; transition: opacity 0.3s;
         }
         
         .note::before { 
@@ -62,8 +68,6 @@
         .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 180px; object-fit: cover; }
         .note h3 { margin: 0; font-size: 0.75em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .note p { margin: 12px 0 0; font-size: 1.1em; color: #333; line-height: 1.4; font-weight: 500; }
-
-        /* Ajuste de color de texto para notas oscuras (Bordeaux) */
         .note.dark-note p { color: white; }
         .note.dark-note h3 { color: rgba(255,255,255,0.5); }
 
@@ -82,17 +86,22 @@
         .color-opt.selected { border-color: #333; transform: scale(1.1); }
 
         .btn-save { background: var(--success); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
+
+        @media (min-width: 600px) {
+            #header { flex-direction: row; justify-content: space-between; }
+            .search-container { width: 250px; }
+        }
     </style>
 </head>
 <body id="main-body">
 
 <div id="login-screen">
-    <div style="margin-bottom: 25px;">
+    <div style="margin-bottom: 25px; text-align: center;">
         <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
         <p>Tu espacio profesional de ideas.</p>
     </div>
     <div class="login-card">
-        <h3>¡Bienvenido!</h3>
+        <h3 style="text-align: center;">¡Bienvenido!</h3>
         <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">
             Entrar con Google
@@ -101,17 +110,22 @@
 </div>
 
 <div id="header">
-    <div class="bg-controls">
-        <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
-        <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
-        <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
-        <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
-        <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
-        <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div>
+    <div class="header-top">
+        <div class="bg-controls">
+            <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
+            <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
+            <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
+            <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
+            <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
+            <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div>
+        </div>
+        <div style="display:flex; gap:12px; align-items: center;">
+            <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
+            <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">+ NOTA</button>
+        </div>
     </div>
-    <div style="display:flex; gap:12px; align-items: center;">
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
-        <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">+ NOTA</button>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="🔍 Buscar en mis notas..." oninput="filterNotes()">
     </div>
 </div>
 
@@ -122,7 +136,6 @@
         <h2 id="modal-title" style="margin-top:0">Nueva Nota</h2>
         <textarea id="note-text" class="modal-input" placeholder="Escribe tu idea aquí..." style="height:100px; resize:none;"></textarea>
         <input type="text" id="note-img" class="modal-input" placeholder="Link de imagen (URL)">
-        
         <p style="margin:0 0 8px; font-weight:bold; font-size:0.9em">Color de nota:</p>
         <div class="color-selector">
             <div class="color-opt selected" style="background:#fff740" onclick="setNoteColor('#fff740', this)"></div>
@@ -130,8 +143,8 @@
             <div class="color-opt" style="background:#ffaf40" onclick="setNoteColor('#ffaf40', this)"></div>
             <div class="color-opt" style="background:#ffcccc" onclick="setNoteColor('#ffcccc', this)"></div>
             <div class="color-opt" style="background:#cd84f1" onclick="setNoteColor('#cd84f1', this)"></div>
-            <div class="color-opt" style="background:#800000" onclick="setNoteColor('#800000', this)"></div> </div>
-        
+            <div class="color-opt" style="background:#800000" onclick="setNoteColor('#800000', this)"></div>
+        </div>
         <button class="btn-save" onclick="saveNote()">GUARDAR CAMBIOS</button>
         <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; color:#636e72; margin-top:10px; cursor:pointer;">Cancelar</button>
     </div>
@@ -153,6 +166,7 @@
 
   let selectedNoteColor = '#fff740';
   let currentEditId = null;
+  let allNotes = [];
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -174,12 +188,10 @@
     document.getElementById('note-text').value = text;
     document.getElementById('note-img').value = img;
     selectedNoteColor = color;
-    
     document.querySelectorAll('.color-opt').forEach(opt => {
         opt.classList.remove('selected');
         if (opt.style.backgroundColor === hexToRgb(color)) opt.classList.add('selected');
     });
-
     document.getElementById('note-modal').style.display = 'flex';
   }
 
@@ -220,30 +232,39 @@
 
   function listenNotes(uid) {
     db.collection("notes").where("authorId", "==", uid).onSnapshot(snapshot => {
-        const canvas = document.getElementById('canvas');
-        canvas.innerHTML = "";
-        const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
-
-        docs.forEach(doc => {
-            const data = doc.data();
-            const noteDiv = document.createElement('div');
-            // Si el color es Bordeaux (#800000), le agregamos una clase para que el texto sea blanco
-            const isDark = data.color === '#800000';
-            noteDiv.className = `note ${isDark ? 'dark-note' : ''}`;
-            noteDiv.style.backgroundColor = data.color;
-            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
-            noteDiv.innerHTML = `
-                <div class="actions">
-                    <button class="action-btn" onclick="openNoteForm('${doc.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
-                    <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
-                </div>
-                ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
-                <h3>${data.author}</h3>
-                <p>${data.content}</p>
-            `;
-            canvas.appendChild(noteDiv);
-        });
+        allNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderNotes(allNotes);
     });
+  }
+
+  function renderNotes(notes) {
+    const canvas = document.getElementById('canvas');
+    canvas.innerHTML = "";
+    const sorted = notes.sort((a,b) => (b.date?.seconds || 0) - (a.date?.seconds || 0));
+
+    sorted.forEach(data => {
+        const noteDiv = document.createElement('div');
+        const isDark = data.color === '#800000';
+        noteDiv.className = `note ${isDark ? 'dark-note' : ''}`;
+        noteDiv.style.backgroundColor = data.color;
+        noteDiv.style.transform = `rotate(${data.rotation}deg)`;
+        noteDiv.innerHTML = `
+            <div class="actions">
+                <button class="action-btn" onclick="openNoteForm('${data.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
+                <button class="action-btn" onclick="deleteNote('${data.id}')" style="color:red">X</button>
+            </div>
+            ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
+            <h3>${data.author}</h3>
+            <p>${data.content}</p>
+        `;
+        canvas.appendChild(noteDiv);
+    });
+  }
+
+  function filterNotes() {
+    const term = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allNotes.filter(n => n.content.toLowerCase().includes(term));
+    renderNotes(filtered);
   }
 
   function hexToRgb(hex) {
