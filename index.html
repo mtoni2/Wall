@@ -10,117 +10,130 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --success: #00b894; --danger: #d63031; }
+        :root {
+            --primary: #6c5ce7;
+            --success: #00b894;
+            --danger: #d63031;
+        }
 
         body { 
             margin: 0; font-family: 'Segoe UI', sans-serif; 
             background-color: #81ecec; 
             background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png'); 
-            min-height: 100vh;
+            min-height: 100vh; transition: background 0.5s;
         }
 
-        /* LOGIN */
+        /* --- PORTADA --- */
         #login-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover; display:none; flex-direction:column; justify-content:center; align-items:center; z-index:9999;
+            background: linear-gradient(rgba(108, 92, 231, 0.8), rgba(9, 132, 227, 0.8)), 
+                        url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
+            background-size: cover; background-position: center;
+            display:none; flex-direction:column; justify-content:center; align-items:center; z-index:4000; color: white;
         }
 
-        /* CABECERA DINÁMICA */
+        .login-card { 
+            background: white; padding: 35px; border-radius: 24px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436;
+        }
+
+        /* --- CABECERA --- */
         #header { 
-            background: white; 
-            padding: 15px; 
-            display: none; /* Se activa con JS */
-            flex-direction: column; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
+            background: rgba(255, 255, 255, 0.96); padding: 12px 20px; 
+            display: none; justify-content: space-between; align-items:center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
         }
 
-        .controles-superiores { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px;
-        }
+        .bg-controls { display: flex; gap: 10px; align-items: center; }
+        .bg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        /* BUSCADOR: Lo sacamos de cualquier contenedor extra */
-        #search-input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #000; /* Borde negro para que lo veas ahora mismo */
-            border-radius: 10px; 
-            font-size: 16px; 
-            box-sizing: border-box;
-            background: #fff;
-            display: block !important;
-        }
+        #canvas { padding: 30px; display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; }
 
-        .bg-dots { display: flex; gap: 8px; }
-        .dot { width: 25px; height: 25px; border-radius: 50%; border: 1px solid #ccc; cursor: pointer; }
-
-        #canvas { padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
-
-        /* NOTAS */
         .note { 
             padding: 40px 20px 25px; border-radius: 2px; box-shadow: 8px 8px 15px rgba(0,0,0,0.2);
-            position: relative; width: 280px; min-height: 200px; box-sizing: border-box;
+            position: relative; width: 280px; min-height: 220px; box-sizing: border-box;
         }
-        .note::before { content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 15px; height: 15px; background: #ff7675; border-radius: 50%; }
-        .note img { width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 150px; object-fit: cover; }
-        .note p { margin: 10px 0 0; font-weight: 500; }
-        .note.dark { color: white; }
-        .note.dark h3 { color: rgba(255,255,255,0.6); }
+        
+        .note::before { 
+            content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 18px; height: 18px; background: #ff7675; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
 
-        .actions { position: absolute; top: 10px; right: 10px; }
-        .btn-edit { background: white; border: none; padding: 5px; border-radius: 4px; cursor: pointer; }
+        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 180px; object-fit: cover; }
+        .note h3 { margin: 0; font-size: 0.75em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .note p { margin: 12px 0 0; font-size: 1.1em; color: #333; line-height: 1.4; font-weight: 500; }
 
-        /* MODAL */
-        #note-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 5000; }
-        .modal-content { background: white; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; }
-        .m-input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        /* Ajuste de color de texto para notas oscuras (Bordeaux) */
+        .note.dark-note p { color: white; }
+        .note.dark-note h3 { color: rgba(255,255,255,0.5); }
+
+        .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 1em; }
+
+        #note-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
+        }
+        .modal-content { background: white; padding: 25px; border-radius: 18px; width: 90%; max-width: 380px; }
+        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        
+        .color-selector { display: flex; gap: 10px; margin: 10px 0 20px; justify-content: center; flex-wrap: wrap; }
+        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .color-opt.selected { border-color: #333; transform: scale(1.1); }
+
+        .btn-save { background: var(--success); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
     </style>
 </head>
-<body>
+<body id="main-body">
 
 <div id="login-screen">
-    <div style="background: white; padding: 30px; border-radius: 20px; text-align: center; color: #333;">
-        <h2>Wall Escolar</h2>
-        <button onclick="login()" style="padding: 10px 20px; cursor: pointer;">Entrar con Google</button>
+    <div style="margin-bottom: 25px;">
+        <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
+        <p>Tu espacio profesional de ideas.</p>
+    </div>
+    <div class="login-card">
+        <h3>¡Bienvenido!</h3>
+        <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">
+            Entrar con Google
+        </button>
     </div>
 </div>
 
 <div id="header">
-    <div class="controles-superiores">
-        <div class="bg-dots">
-            <div class="dot" style="background:#81ecec" onclick="document.body.style.backgroundColor='#81ecec'"></div>
-            <div class="dot" style="background:#fab1a0" onclick="document.body.style.backgroundColor='#fab1a0'"></div>
-            <div class="dot" style="background:#800000" onclick="document.body.style.backgroundColor='#800000'"></div>
-            <div style="font-size: 12px; align-self: center; margin-left: 5px;">FONDO</div>
-        </div>
-        <div>
-            <button onclick="logout()" style="color:red; background:none; border:none; font-weight:bold; margin-right:10px;">SALIR</button>
-            <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:5px; font-weight:bold;">+ NOTA</button>
-        </div>
+    <div class="bg-controls">
+        <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
+        <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
+        <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
+        <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
+        <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
+        <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div>
     </div>
-    <input type="text" id="search-input" placeholder="🔍 BUSCAR NOTAS AQUÍ..." onkeyup="filterNotes()">
+    <div style="display:flex; gap:12px; align-items: center;">
+        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
+        <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">+ NOTA</button>
+    </div>
 </div>
 
 <div id="canvas"></div>
 
 <div id="note-modal">
     <div class="modal-content">
-        <h3 id="modal-title">Nueva Nota</h3>
-        <textarea id="note-text" class="m-input" placeholder="Texto..." style="height:100px;"></textarea>
-        <input type="text" id="note-img" class="m-input" placeholder="Link Imagen (URL)">
-        <div style="display:flex; gap:10px; margin-bottom:15px; justify-content:center;" id="color-opts">
-            <div class="dot" style="background:#fff740" onclick="pickColor('#fff740')"></div>
-            <div class="dot" style="background:#7efff5" onclick="pickColor('#7efff5')"></div>
-            <div class="dot" style="background:#800000" onclick="pickColor('#800000')"></div>
-        </div>
-        <button onclick="saveNote()" style="width:100%; background:var(--success); color:white; padding:12px; border:none; border-radius:5px; font-weight:bold;">GUARDAR</button>
-        <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer;">Cancelar</button>
+        <h2 id="modal-title" style="margin-top:0">Nueva Nota</h2>
+        <textarea id="note-text" class="modal-input" placeholder="Escribe tu idea aquí..." style="height:100px; resize:none;"></textarea>
+        <input type="text" id="note-img" class="modal-input" placeholder="Link de imagen (URL)">
+        
+        <p style="margin:0 0 8px; font-weight:bold; font-size:0.9em">Color de nota:</p>
+        <div class="color-selector">
+            <div class="color-opt selected" style="background:#fff740" onclick="setNoteColor('#fff740', this)"></div>
+            <div class="color-opt" style="background:#7efff5" onclick="setNoteColor('#7efff5', this)"></div>
+            <div class="color-opt" style="background:#ffaf40" onclick="setNoteColor('#ffaf40', this)"></div>
+            <div class="color-opt" style="background:#ffcccc" onclick="setNoteColor('#ffcccc', this)"></div>
+            <div class="color-opt" style="background:#cd84f1" onclick="setNoteColor('#cd84f1', this)"></div>
+            <div class="color-opt" style="background:#800000" onclick="setNoteColor('#800000', this)"></div> </div>
+        
+        <button class="btn-save" onclick="saveNote()">GUARDAR CAMBIOS</button>
+        <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; color:#636e72; margin-top:10px; cursor:pointer;">Cancelar</button>
     </div>
 </div>
 
@@ -138,9 +151,8 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  let selectedColor = '#fff740';
-  let editId = null;
-  let notesCache = [];
+  let selectedNoteColor = '#fff740';
+  let currentEditId = null;
 
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -154,63 +166,91 @@
   });
 
   function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  function logout() { auth.signOut(); }
+  function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
 
-  function openNoteForm(id=null, text='', img='', col='#fff740') {
-    editId = id;
+  function openNoteForm(id = null, text = '', img = '', color = '#fff740') {
+    currentEditId = id;
+    document.getElementById('modal-title').innerText = id ? "Editar Nota" : "Nueva Nota";
     document.getElementById('note-text').value = text;
     document.getElementById('note-img').value = img;
-    selectedColor = col;
+    selectedNoteColor = color;
+    
+    document.querySelectorAll('.color-opt').forEach(opt => {
+        opt.classList.remove('selected');
+        if (opt.style.backgroundColor === hexToRgb(color)) opt.classList.add('selected');
+    });
+
     document.getElementById('note-modal').style.display = 'flex';
   }
 
   function closeNoteForm() { document.getElementById('note-modal').style.display = 'none'; }
-  function pickColor(c) { selectedColor = c; }
+  function setNoteColor(color, el) {
+    selectedNoteColor = color;
+    document.querySelectorAll('.color-opt').forEach(opt => opt.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function changeBg(color) { document.getElementById('main-body').style.backgroundColor = color; }
 
   function saveNote() {
     const text = document.getElementById('note-text').value;
     const img = document.getElementById('note-img').value;
-    if(!text.trim()) return;
-    const data = { content: text, imageUrl: img||null, color: selectedColor, date: firebase.firestore.FieldValue.serverTimestamp() };
-    if(editId) db.collection("notes").doc(editId).update(data).then(closeNoteForm);
-    else db.collection("notes").add({...data, author: auth.currentUser.displayName, authorId: auth.currentUser.uid, rotation: (Math.random()*6-3)});
-    closeNoteForm();
+    if (!text.trim()) return;
+
+    const noteData = {
+        content: text,
+        imageUrl: img || null,
+        color: selectedNoteColor,
+        date: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (currentEditId) {
+        db.collection("notes").doc(currentEditId).update(noteData).then(closeNoteForm);
+    } else {
+        db.collection("notes").add({
+            ...noteData,
+            author: auth.currentUser.displayName,
+            authorId: auth.currentUser.uid,
+            rotation: (Math.random() * 6 - 3).toFixed(1)
+        }).then(closeNoteForm);
+    }
   }
+
+  function deleteNote(id) { if(confirm("¿Eliminar?")) db.collection("notes").doc(id).delete(); }
 
   function listenNotes(uid) {
-    db.collection("notes").where("authorId", "==", uid).onSnapshot(snap => {
-        notesCache = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-        renderNotes(notesCache);
+    db.collection("notes").where("authorId", "==", uid).onSnapshot(snapshot => {
+        const canvas = document.getElementById('canvas');
+        canvas.innerHTML = "";
+        const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
+
+        docs.forEach(doc => {
+            const data = doc.data();
+            const noteDiv = document.createElement('div');
+            // Si el color es Bordeaux (#800000), le agregamos una clase para que el texto sea blanco
+            const isDark = data.color === '#800000';
+            noteDiv.className = `note ${isDark ? 'dark-note' : ''}`;
+            noteDiv.style.backgroundColor = data.color;
+            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
+            noteDiv.innerHTML = `
+                <div class="actions">
+                    <button class="action-btn" onclick="openNoteForm('${doc.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
+                    <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
+                </div>
+                ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
+                <h3>${data.author}</h3>
+                <p>${data.content}</p>
+            `;
+            canvas.appendChild(noteDiv);
+        });
     });
   }
 
-  function renderNotes(arr) {
-    const canvas = document.getElementById('canvas');
-    canvas.innerHTML = "";
-    arr.sort((a,b) => (b.date?.seconds||0) - (a.date?.seconds||0)).forEach(n => {
-        const div = document.createElement('div');
-        const dark = n.color === '#800000';
-        div.className = `note ${dark ? 'dark' : ''}`;
-        div.style.backgroundColor = n.color;
-        div.style.transform = `rotate(${n.rotation}deg)`;
-        div.innerHTML = `
-            <div class="actions">
-                <button class="btn-edit" onclick="openNoteForm('${n.id}', '${n.content.replace(/'/g, "\\'")}', '${n.imageUrl||''}', '${n.color}')">✏️</button>
-            </div>
-            ${n.imageUrl ? `<img src="${n.imageUrl}">` : ''}
-            <h3>${n.author}</h3>
-            <p>${n.content}</p>
-        `;
-        canvas.appendChild(div);
-    });
-  }
-
-  function filterNotes() {
-    const val = document.getElementById('search-input').value.toLowerCase();
-    const filtered = notesCache.filter(n => n.content.toLowerCase().includes(val));
-    renderNotes(filtered);
+  function hexToRgb(hex) {
+    const div = document.createElement("div");
+    div.style.backgroundColor = hex;
+    return div.style.backgroundColor;
   }
 </script>
-
 </body>
 </html>
