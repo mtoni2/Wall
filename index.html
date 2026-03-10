@@ -45,7 +45,7 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        /* --- INTERFAZ PRIVADA --- */
+        /* --- INTERFAZ --- */
         #header { 
             background: rgba(255, 255, 255, 0.96); padding: 10px 15px; 
             display: none; justify-content: space-between; align-items:center; 
@@ -56,14 +56,13 @@
             padding: 25px 15px; display: flex; flex-direction: column; gap: 25px; align-items: center; 
         }
 
-        /* --- NOTAS MEJORADAS (Menos anchas y privadas) --- */
+        /* --- NOTAS (Ajustadas para PC y Móvil) --- */
         .note { 
             padding: 30px 20px 25px; border-radius: 2px; 
             box-shadow: 8px 8px 15px rgba(0,0,0,0.2); 
             position: relative; transition: 0.3s;
-            /* CORRECCIÓN ANCHO: No toca las orillas */
-            width: 85%; max-width: 300px; 
-            min-height: 220px; /* CUERPO VERTICAL */
+            width: 90%; max-width: 350px; 
+            min-height: 200px;
             display: flex; flex-direction: column; box-sizing: border-box;
         }
         
@@ -73,28 +72,27 @@
             box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 180px; object-fit: cover; }
+        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 250px; object-fit: cover; }
         .note h3 { margin: 0 0 8px 0; font-size: 0.75em; text-transform: uppercase; color: rgba(0,0,0,0.4); border-bottom: 1px solid rgba(0,0,0,0.1); }
         .note p { margin: 0; font-size: 1.1em; line-height: 1.4; color: #333; word-wrap: break-word; flex-grow: 1; }
 
         .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 8px; }
-        .action-btn { background: rgba(255,255,255,0.6); border: none; border-radius: 4px; cursor: pointer; font-size: 1em; padding: 2px 4px; }
+        .action-btn { background: rgba(255,255,255,0.7); border: none; border-radius: 4px; cursor: pointer; font-size: 1.1em; padding: 4px; }
 
-        .btn-add { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
+        .btn-add { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="loading-screen"><h3>Validando sesión...</h3></div>
+<div id="loading-screen" style="text-align:center; padding:50px;"><h3>Cargando sistema...</h3></div>
 
 <div id="login-screen">
     <div style="margin-bottom: 20px;">
         <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
-        <p>Tu espacio personal de ideas.</p>
+        <p>Tu espacio de ideas.</p>
     </div>
     <div class="login-card">
         <h3>¡Bienvenido!</h3>
-        <p style="font-size: 0.9em; color: #636e72;">Inicia sesión para ver <b>tus</b> notas.</p>
         <button class="btn-google" onclick="login()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">
             Entrar con Google
@@ -104,9 +102,9 @@
 </div>
 
 <div id="header">
-    <h2 style="margin:0; font-size:1em;">📌 Mis Ideas</h2>
+    <h2 style="margin:0; font-size:1em;">📌 Mis Notas</h2>
     <div style="display:flex; align-items:center; gap:10px">
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75em; font-weight:bold">SALIR</button>
+        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold">SALIR</button>
         <button class="btn-add" onclick="addNewNote()">+ NOTA</button>
     </div>
 </div>
@@ -114,7 +112,6 @@
 <div id="canvas"></div>
 
 <script>
-  // Configuración de tu Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -133,7 +130,7 @@
     if (user) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('header').style.display = 'flex';
-        listenNotes(user.uid); // Pasamos tu ID único para filtrar
+        listenNotes();
     } else {
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('header').style.display = 'none';
@@ -152,7 +149,7 @@
         content: text,
         imageUrl: null,
         author: auth.currentUser.displayName,
-        authorId: auth.currentUser.uid, // Guardamos tu ID para que sea privada
+        authorId: auth.currentUser.uid,
         color: ['#fff740', '#7efff5', '#ffaf40', '#cd84f1', '#ffcccc'][Math.floor(Math.random() * 5)],
         rotation: (Math.random() * 4 - 2).toFixed(1),
         date: firebase.firestore.FieldValue.serverTimestamp()
@@ -171,27 +168,32 @@
     if (url) db.collection("notes").doc(id).update({ imageUrl: url.trim() });
   }
 
-  function deleteNote(id) { if(confirm("¿Borrar?")) db.collection("notes").doc(id).delete(); }
+  function deleteNote(id) { if(confirm("¿Borrar nota?")) db.collection("notes").doc(id).delete(); }
 
-  // FILTRO DE PRIVACIDAD ACTIVADO
-  function listenNotes(uid) {
+  function listenNotes() {
+    const currentUser = auth.currentUser;
+    // Quitamos el filtro 'where' para evitar el error de índice y que no desaparezcan las notas
     db.collection("notes")
-      .where("authorId", "==", uid) // SOLO tus notas
       .orderBy("date", "desc")
       .onSnapshot(snapshot => {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
         snapshot.forEach(doc => {
             const data = doc.data();
+            // PRIVACIDAD: Solo el autor ve sus botones
+            const isOwner = data.authorId === currentUser.uid;
+            
             const noteDiv = document.createElement('div');
             noteDiv.className = 'note';
             noteDiv.style.backgroundColor = data.color;
             noteDiv.style.transform = `rotate(${data.rotation}deg)`;
             noteDiv.innerHTML = `
                 <div class="actions">
-                    <button class="action-btn" onclick="addImageToNote('${doc.id}')">🖼️</button>
-                    <button class="action-btn" onclick="editNote('${doc.id}', '${data.content.replace(/'/g, "\\'")}')">✏️</button>
-                    <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
+                    ${isOwner ? `
+                        <button class="action-btn" onclick="addImageToNote('${doc.id}')" title="Imagen">🖼️</button>
+                        <button class="action-btn" onclick="editNote('${doc.id}', '${data.content.replace(/'/g, "\\'")}')" title="Editar">✏️</button>
+                        <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red" title="Borrar">X</button>
+                    ` : ''}
                 </div>
                 ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
                 <h3>${data.author}</h3>
