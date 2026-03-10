@@ -3,31 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wall Escolar</title> <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
+    <title>Wall Escolar</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
     <style>
         body { background: #dfe6e9; font-family: 'Segoe UI', sans-serif; margin: 0; }
         #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #0984e3; color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; }
-        #header { background: #ffffff; color: #333; padding: 15px 25px; display: flex; justify-content: space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display:none; }
+        #header { background: #ffffff; color: #333; padding: 10px 20px; display: flex; justify-content: space-between; align-items:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display:none; position: sticky; top: 0; z-index: 100; }
         #canvas { padding: 25px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .note { padding: 20px; border-radius: 2px; box-shadow: 5px 5px 7px rgba(33,33,33,.3); transform: rotate(-2deg); transition: 0.2s; position: relative; min-height: 150px; }
-        .note:nth-child(even) { transform: rotate(2deg); }
-        .note:hover { transform: scale(1.05); z-index: 10; }
-        .note h3 { margin: 0 0 10px 0; font-size: 1.1em; border-bottom: 1px solid rgba(0,0,0,0.1); }
-        .btn-add { background: #0984e3; color: white; border: none; padding: 12px 24px; border-radius: 50px; cursor: pointer; font-weight: bold; }
-        .btn-login { background: white; color: #0984e3; border: none; padding: 15px 40px; border-radius: 30px; cursor: pointer; font-size: 1.2em; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .note { padding: 20px; border-radius: 2px; box-shadow: 5px 5px 7px rgba(33,33,33,.2); transform: rotate(-1deg); transition: 0.2s; position: relative; min-height: 120px; }
+        .note:hover { transform: scale(1.03) rotate(0deg); z-index: 10; }
+        .note h3 { margin: 0 0 10px 0; font-size: 0.9em; color: #636e72; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .delete-btn { position: absolute; top: 5px; right: 5px; background: none; border: none; color: rgba(0,0,0,0.3); cursor: pointer; font-weight: bold; }
+        .btn-add { background: #00b894; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-logout { background: #fab1a0; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
+        .btn-login { background: white; color: #0984e3; border: none; padding: 15px 40px; border-radius: 30px; cursor: pointer; font-size: 1.2em; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
-    <h1>📝 Wall Escolar</h1> <p>Inicia sesión para participar</p>
+    <h1>📝 Wall Escolar</h1>
     <button class="btn-login" onclick="login()">Entrar con Google</button>
 </div>
 
 <div id="header">
-    <span id="user-name" style="font-weight: bold;"></span>
+    <div>
+        <span id="user-name" style="font-weight: bold; margin-right: 10px;"></span>
+        <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
     <button class="btn-add" onclick="addNewNote()">+ Nueva Nota</button>
 </div>
 
@@ -49,14 +54,35 @@
 
   const colors = ['#fffa65', '#7efff5', '#ffaf40', '#cd84f1', '#ffcccc', '#fff200'];
 
+  // Detectar si el usuario ya está logueado al recargar
+  auth.onAuthStateChanged(user => {
+    if (user) {
+        showApp(user);
+    } else {
+        showLogin();
+    }
+  });
+
   function login() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(result => {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('header').style.display = 'flex';
-        document.getElementById('user-name').innerText = "Hola, " + result.user.displayName;
-        listenNotes();
-    }).catch(err => alert("Error: " + err.message));
+    auth.signInWithPopup(provider);
+  }
+
+  function logout() {
+    if(confirm("¿Quieres cerrar sesión?")) auth.signOut();
+  }
+
+  function showApp(user) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('header').style.display = 'flex';
+    document.getElementById('user-name').innerText = user.displayName;
+    listenNotes();
+  }
+
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('header').style.display = 'none';
+    document.getElementById('canvas').innerHTML = "";
   }
 
   function addNewNote() {
@@ -66,9 +92,16 @@
         db.collection("notes").add({
             content: text,
             author: auth.currentUser.displayName,
+            authorId: auth.currentUser.uid, // Guardamos el ID único del usuario
             color: randomColor,
             date: new Date()
         });
+    }
+  }
+
+  function deleteNote(id) {
+    if(confirm("¿Borrar esta nota?")) {
+        db.collection("notes").doc(id).delete();
     }
   }
 
@@ -78,10 +111,16 @@
         canvas.innerHTML = "";
         snapshot.forEach(doc => {
             const data = doc.data();
+            const isOwner = data.authorId === auth.currentUser.uid;
             const noteDiv = document.createElement('div');
             noteDiv.className = 'note';
             noteDiv.style.backgroundColor = data.color || '#fff9c4';
-            noteDiv.innerHTML = `<h3>${data.author}</h3><p>${data.content}</p>`;
+            
+            noteDiv.innerHTML = `
+                ${isOwner ? `<button class="delete-btn" onclick="deleteNote('${doc.id}')">X</button>` : ''}
+                <h3>${data.author}</h3>
+                <p>${data.content}</p>
+            `;
             canvas.appendChild(noteDiv);
         });
     });
