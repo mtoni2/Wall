@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro Escolar Pro</title>
+    <title>Muro Escolar - Estilo Padlet</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
@@ -17,11 +17,12 @@
 
         body { 
             margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background-color: #81ecec; 
+            background-color: #81ecec; /* Color inicial */
             background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png'); 
             min-height: 100vh; transition: background 0.5s;
         }
 
+        /* --- HEADER CON SELECTOR DE FONDO --- */
         #header { 
             background: rgba(255, 255, 255, 0.95); padding: 10px 15px; 
             display: none; justify-content: space-between; align-items:center; 
@@ -33,7 +34,7 @@
 
         #canvas { padding: 25px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
 
-        /* NOTAS CON BOTONES SIEMPRE VISIBLES */
+        /* --- NOTAS --- */
         .note { 
             padding: 35px 15px 20px; border-radius: 2px; box-shadow: 5px 5px 15px rgba(0,0,0,0.15);
             position: relative; width: 280px; min-height: 200px; box-sizing: border-box;
@@ -45,13 +46,14 @@
         }
 
         .note img { width: 100%; border-radius: 4px; margin-bottom: 10px; max-height: 180px; object-fit: cover; }
-        .note h3 { margin: 0; font-size: 0.7em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .note p { margin: 10px 0 0; font-size: 1.1em; color: #2d3436; line-height: 1.4; }
+        .note h3 { margin: 0; font-size: 0.7em; color: rgba(0,0,0,0.4); text-transform: uppercase; }
+        .note p { margin: 10px 0 0; font-size: 1.1em; color: #2d3436; }
 
-        /* BOTONES DE ACCIÓN: Cambiado cesto por X */
-        .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; z-index: 10; }
-        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 1em; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        /* Botones siempre visibles */
+        .actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 5px; }
+        .action-btn { background: white; border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-size: 1em; }
 
+        /* --- MODAL DE CREACIÓN --- */
         #note-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
@@ -59,31 +61,28 @@
         .modal-content { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; }
         .color-selector { display: flex; gap: 10px; margin: 15px 0; }
         .color-opt { width: 35px; height: 35px; border-radius: 5px; cursor: pointer; border: 2px solid #eee; }
-        .color-opt.selected { border-color: #2d3436; transform: scale(1.1); }
+        .color-opt.selected { border-color: #333; transform: scale(1.1); }
 
-        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #6c5ce7; display:none; flex-direction:column; justify-content:center; align-items:center; color:white; text-align: center; }
+        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: #6c5ce7; display:none; flex-direction:column; justify-content:center; align-items:center; color:white; }
         .btn-add { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body id="main-body">
 
 <div id="login-screen">
-    <h1>Muro Escolar</h1>
-    <p>Inicia sesión para gestionar tus ideas</p>
-    <button onclick="login()" style="padding: 15px 30px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; font-size: 1.1em;">
-        Entrar con Google
-    </button>
+    <h1>Wall Escolar</h1>
+    <button onclick="login()" style="padding: 15px 30px; cursor: pointer;">Entrar con Google</button>
 </div>
 
 <div id="header">
     <div class="bg-controls">
+        <span style="font-size: 0.8em;">Fondo Muro:</span>
         <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
         <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
         <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
         <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
-        <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
     </div>
-    <div style="display:flex; gap:15px; align-items: center;">
+    <div style="display:flex; gap:10px;">
         <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
         <button class="btn-add" onclick="openModal()">+ NUEVA NOTA</button>
     </div>
@@ -93,11 +92,11 @@
 
 <div id="note-modal">
     <div class="modal-content">
-        <h3>Crear Nota</h3>
-        <textarea id="note-text" placeholder="Escribe algo..." style="width:100%; height:100px; margin-bottom:10px; padding:10px; border:1px solid #ddd; border-radius:8px; resize:none;"></textarea>
-        <input type="text" id="note-img" placeholder="Link de imagen (opcional)" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px;">
+        <h3>Nueva Nota</h3>
+        <textarea id="note-text" placeholder="Escribe aquí..." style="width:100%; height:100px; margin-bottom:10px;"></textarea>
+        <input type="text" id="note-img" placeholder="Link de imagen (opcional)" style="width:100%; margin-bottom:10px;">
         
-        <p style="margin:5px 0">Color del papel:</p>
+        <p>Color de la nota:</p>
         <div class="color-selector">
             <div class="color-opt selected" style="background:#fff740" onclick="selectColor('#fff740', this)"></div>
             <div class="color-opt" style="background:#7efff5" onclick="selectColor('#7efff5', this)"></div>
@@ -105,14 +104,15 @@
             <div class="color-opt" style="background:#ffcccc" onclick="selectColor('#ffcccc', this)"></div>
         </div>
         
-        <div style="display:flex; justify-content: flex-end; gap:10px; margin-top:15px;">
-            <button onclick="closeModal()" style="border:none; background:none; cursor:pointer;">Cancelar</button>
-            <button onclick="saveNote()" style="background:var(--success); color:white; border:none; padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold;">Publicar</button>
+        <div style="display:flex; justify-content: flex-end; gap:10px;">
+            <button onclick="closeModal()">Cancelar</button>
+            <button onclick="saveNote()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">Publicar</button>
         </div>
     </div>
 </div>
 
 <script>
+  // Tu configuración de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
     authDomain: "wall-5b79c.firebaseapp.com",
@@ -140,7 +140,7 @@
   });
 
   function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
+  function logout() { auth.signOut(); }
 
   function openModal() { document.getElementById('note-modal').style.display = 'flex'; }
   function closeModal() { document.getElementById('note-modal').style.display = 'none'; }
@@ -172,38 +172,32 @@
     });
   }
 
-  function editNote(id, currentText) {
-    const newText = prompt("Editar texto de la nota:", currentText);
-    if (newText && newText.trim() !== "" && newText !== currentText) {
-        db.collection("notes").doc(id).update({ content: newText });
-    }
+  function deleteNote(id) { if(confirm("¿Borrar?")) db.collection("notes").doc(id).delete(); }
+  function editNote(id, current) {
+    const n = prompt("Editar:", current);
+    if(n) db.collection("notes").doc(id).update({content: n});
   }
-
-  function addImageToNote(id) {
-    const url = prompt("Pega el link de la nueva imagen:");
-    if (url !== null) db.collection("notes").doc(id).update({ imageUrl: url.trim() || null });
-  }
-
-  function deleteNote(id) { if(confirm("¿Borrar esta nota permanentemente?")) db.collection("notes").doc(id).delete(); }
 
   function listenNotes(uid) {
-    db.collection("notes").orderBy("date", "desc").onSnapshot(snapshot => {
+    // Escucha global para evitar el error de índice de Firebase
+    db.collection("notes").onSnapshot(snapshot => {
         const canvas = document.getElementById('canvas');
         canvas.innerHTML = "";
-        snapshot.forEach(doc => {
+        
+        // Ordenamos por fecha en el código
+        const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
+
+        docs.forEach(doc => {
             const data = doc.data();
             if (data.authorId === uid) {
                 const noteDiv = document.createElement('div');
                 noteDiv.className = 'note';
                 noteDiv.style.backgroundColor = data.color;
                 noteDiv.style.transform = `rotate(${data.rotation}deg)`;
-                
-                // Botones con la X para borrar
                 noteDiv.innerHTML = `
                     <div class="actions">
-                        <button class="action-btn" onclick="addImageToNote('${doc.id}')" title="Imagen">🖼️</button>
-                        <button class="action-btn" onclick="editNote('${doc.id}', '${data.content.replace(/'/g, "\\'")}')" title="Editar">✏️</button>
-                        <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:var(--danger)" title="Borrar">X</button>
+                        <button class="action-btn" onclick="editNote('${doc.id}', '${data.content}')">✏️</button>
+                        <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
                     </div>
                     ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
                     <h3>${data.author}</h3>
