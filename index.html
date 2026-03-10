@@ -27,9 +27,22 @@
       justify-content: center;
       padding: 2rem;
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%), 
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23f8fafc" width="1200" height="800"/><image href="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=800&fit=crop" opacity="0.15" width="1200" height="800"/></svg>');
+      background-size: cover;
+      background-position: center;
+      background-blend-mode: overlay;
+      color: var(--text);
+      position: relative;
     }
+    .landing::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(102, 126, 234, 0.08);
+      pointer-events: none;
+    }
+    .landing > * { position: relative; z-index: 1; }
     .landing.hidden { display: none !important; }
     
     .landing-logo {
@@ -40,16 +53,17 @@
       align-items: center;
       gap: 0.5rem;
       justify-content: center;
+      color: var(--text);
     }
     .landing-subtitle {
       font-size: 1.2rem;
-      opacity: 0.95;
+      color: var(--text-muted);
       margin-bottom: 1rem;
       font-weight: 400;
     }
     .landing-description {
       font-size: 1.1rem;
-      opacity: 0.9;
+      color: var(--text-muted);
       max-width: 500px;
       margin: 0 auto 2rem;
       line-height: 1.6;
@@ -67,19 +81,31 @@
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       transition: transform 0.15s, box-shadow 0.15s;
     }
     .google-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
     }
     .google-btn img { width: 24px; height: 24px; }
     
     .welcome-msg {
       margin-top: 1.5rem;
       font-size: 1rem;
-      opacity: 0.85;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .landing-footer {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      z-index: 1;
     }
 
     /* === APP UI (post-login) === */
@@ -218,6 +244,7 @@
       border: 1px solid var(--border);
       transition: transform 0.15s;
       position: relative;
+      overflow: hidden; /* Previene que nada se salga */
     }
     .note:hover {
       transform: translateY(-2px);
@@ -274,9 +301,18 @@
     .note-content img,
     .note-content video {
       max-width: 100%;
+      max-height: 250px; /* Limita altura máxima */
+      width: auto;
+      height: auto;
+      object-fit: contain; /* Mantiene proporción */
       border-radius: 8px;
       margin-top: 0.4rem;
       display: block;
+    }
+    .note-content iframe {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 0.4rem;
     }
     .note-content a.link-card {
       display: block;
@@ -508,6 +544,10 @@
     </button>
     
     <p class="welcome-msg" id="welcomeMsg" style="display:none;">¡Bienvenido!</p>
+    
+    <footer class="landing-footer">
+      © 2026 - Desarrollado por Marcelo Tonini
+    </footer>
   </main>
 
   <!-- === APP UI (después de login) === -->
