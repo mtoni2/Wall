@@ -121,6 +121,7 @@
       cursor: pointer;
       font-weight: 500;
       font-size: 0.85rem;
+      white-space: nowrap;
     }
     .btn:hover { background: #4338ca; }
     .btn-outline {
@@ -167,6 +168,19 @@
     .bg-color-option.active {
       border-color: var(--text);
       box-shadow: 0 0 0 2px white;
+    }
+    
+    .toolbar-left {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    .toolbar-right {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-left: auto;
     }
     
     #board {
@@ -467,18 +481,20 @@
     @media (max-width: 640px) {
       .landing { padding: 1.5rem 1rem; }
       .landing-logo { font-size: 1.7rem; }
-      .toolbar { flex-wrap: wrap; }
-      .search-box { order: 3; min-width: 100%; margin-top: 0.5rem; }
+      .toolbar { 
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+      .toolbar-left, .toolbar-right {
+        flex-shrink: 0;
+      }
+      .search-box { 
+        min-width: 120px;
+        flex: 1;
+      }
       .note { max-height: none; }
       .note-content { max-height: none; overflow: visible; }
       .note-content img, .note-content video { max-height: 180px; }
-      .bg-color-selector { 
-        display: flex !important;
-        order: 4;
-        width: 100%;
-        justify-content: center;
-        margin-top: 0.5rem;
-      }
     }
   </style>
 </head>
@@ -509,17 +525,21 @@
     </header>
 
     <div class="toolbar">
-      <button class="btn" id="btnNewNote">+ NOTA</button>
-      <div class="search-box">
-        <input type="search" id="searchInput" placeholder="Buscar...">
+      <div class="toolbar-left">
+        <button class="btn" id="btnNewNote">+ NOTA</button>
+        <div class="bg-color-selector" id="bgColorSelector">
+          <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
+          <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
+          <div class="bg-color-option" style="background:#dbeafe" data-color="#dbeafe"></div>
+          <div class="bg-color-option" style="background:#dcfce7" data-color="#dcfce7"></div>
+          <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
+          <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
+        </div>
       </div>
-      <div class="bg-color-selector" id="bgColorSelector">
-        <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
-        <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
-        <div class="bg-color-option" style="background:#dbeafe" data-color="#dbeafe"></div>
-        <div class="bg-color-option" style="background:#dcfce7" data-color="#dcfce7"></div>
-        <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
-        <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
+      <div class="toolbar-right">
+        <div class="search-box">
+          <input type="search" id="searchInput" placeholder="Buscar...">
+        </div>
       </div>
     </div>
 
@@ -612,7 +632,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
@@ -739,12 +759,12 @@
       if (hasLiked) {
         await updateDoc(noteRef, {
           likedBy: arrayRemove(userId),
-          'reactions.likes': Math.max(0, (note.reactions?.likes || 0) - 1)
+          'reactions.likes': increment(-1)
         });
       } else {
         await updateDoc(noteRef, {
           likedBy: arrayUnion(userId),
-          'reactions.likes': (note.reactions?.likes || 0) + 1
+          'reactions.likes': increment(1)
         });
       }
     }
@@ -789,8 +809,8 @@
       
       try {
         const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
-        const note = state.notes.find(n => n.id === state.currentNoteId);
         
+        // Usar increment en lugar de calcular manualmente
         await updateDoc(noteRef, {
           comments: arrayUnion({
             author: state.currentUser.displayName || 'Usuario',
@@ -798,14 +818,21 @@
             text: text,
             createdAt: serverTimestamp()
           }),
-          'reactions.comments': (note.reactions?.comments || 0) + 1
+          'reactions.comments': increment(1)
         });
         
         input.value = '';
         showToast('✅ Comentario enviado');
+        
+        // Recargar comentarios
+        const note = state.notes.find(n => n.id === state.currentNoteId);
+        if (note) {
+          renderComments(note);
+          document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${(note.reactions?.comments || 0) + 1})`;
+        }
       } catch (error) {
         console.error('Error al comentar:', error);
-        showToast('❌ Error al enviar');
+        showToast('❌ Error: ' + error.message);
       }
     }
 
@@ -991,10 +1018,8 @@
     document.getElementById('cancelNote').onclick = closeModal;
     document.getElementById('saveNote').onclick = handleSaveNote;
     document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
-    document.getElementById('addCommentBtn').addEventListener('click', addComment);
-    document.getElementById('commentInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') addComment();
-    });
+    document.getElementById('addCommentBtn').onclick = addComment;
+    document.getElementById('commentInput').onkeypress = (e) => { if(e.key==='Enter') addComment(); };
     
     document.querySelectorAll('.post-type-btn').forEach(btn => 
       btn.onclick = () => {
