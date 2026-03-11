@@ -173,7 +173,7 @@
       border: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      max-height: 450px;
+      max-height: 500px;
       overflow: hidden;
     }
     .note:hover {
@@ -188,6 +188,7 @@
       margin-bottom: 0.5rem;
       padding-bottom: 0.5rem;
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
     .note-author {
       display: flex;
@@ -213,15 +214,17 @@
       font-weight: 600;
       margin-bottom: 0.35rem;
       font-size: 0.95rem;
+      flex-shrink: 0;
     }
     .note-content {
       color: #334155;
       font-size: 0.9rem;
       margin-bottom: 0.5rem;
       white-space: pre-wrap;
+      word-wrap: break-word;
       overflow-y: auto;
-      max-height: 120px;
-      flex: 1;
+      max-height: 150px;
+      flex: 0 1 auto;
     }
     
     .note-content img,
@@ -252,6 +255,7 @@
       flex-wrap: wrap;
       gap: 0.25rem;
       margin-bottom: 0.5rem;
+      flex-shrink: 0;
     }
     .tag {
       font-size: 0.65rem;
@@ -259,7 +263,9 @@
       background: #eef2ff;
       color: var(--primary);
       border-radius: 20px;
+      cursor: pointer;
     }
+    .tag:hover { background: #dbeafe; }
     
     .note-reactions {
       display: flex;
@@ -269,6 +275,7 @@
       border-top: 1px solid var(--border);
       padding-top: 0.5rem;
       margin-top: auto;
+      flex-shrink: 0;
     }
     .reaction-btn {
       display: flex;
@@ -339,6 +346,20 @@
     .form-group textarea { min-height: 80px; resize: vertical; }
     .form-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
     
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .checkbox-label input[type="checkbox"] {
+      margin: 0;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    
     .post-types {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -388,6 +409,7 @@
       font-weight: 600;
       color: var(--primary);
       font-size: 0.8rem;
+      margin-bottom: 0.2rem;
     }
     .comment-form {
       display: flex;
@@ -428,11 +450,14 @@
     }
     
     @media (max-width: 640px) {
+      .landing { padding: 1.5rem 1rem; }
       .landing-logo { font-size: 1.7rem; }
       .toolbar { flex-wrap: wrap; }
       .search-box { order: 3; max-width: 100%; margin-top: 0.5rem; }
-      .note { max-height: 400px; }
-      .note-content img, .note-content video { max-height: 150px; }
+      .note { max-height: none; }
+      .note-content { max-height: none; overflow: visible; }
+      .note-content img, .note-content video { max-height: 180px; }
+      .bg-color-selector { display: none; }
     }
   </style>
 </head>
@@ -531,13 +556,15 @@
           <input type="text" id="noteTags" placeholder="separadas por coma">
         </div>
         <div class="form-group">
-          <label><input type="checkbox" id="notePrivate"> 
-		  🔒 Marcar como privada</label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="notePrivate">
+            <span>Marcar como privada</span>
+          </label>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" id="cancelNote">Cancelar</button>
-        <button class="btn" id="saveNote">GUARDAR</button>
+        <button class="btn" id="saveNote">GUARDAR CAMBIOS</button>
       </div>
     </div>
   </div>
@@ -795,7 +822,7 @@
         media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🔗 ${escapeHtml(note.url.replace(/^https?:\/\//,''))}</a>`;
       }
       
-      const tags = note.tags?.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('') || '';
+      const tags = note.tags?.map(t => `<span class="tag" onclick="filterByTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('') || '';
       const hasLiked = note.likedBy?.includes(state.currentUser?.uid);
       
       const actions = isOwner ? 
@@ -923,6 +950,11 @@
       setTimeout(() => t.remove(), 3000);
     }
 
+    function filterByTag(tag) {
+      els.searchInput.value = tag;
+      els.searchInput.dispatchEvent(new Event('input'));
+    }
+
     // Event listeners
     document.getElementById('btnNewNote').onclick = () => openNoteModal();
     document.getElementById('btnNewNoteEmpty').onclick = () => openNoteModal();
@@ -967,6 +999,7 @@
     window.deleteNote = deleteNote;
     window.toggleLike = toggleLike;
     window.openComments = openComments;
+    window.filterByTag = filterByTag;
   </script>
 </body>
 </html>
