@@ -418,22 +418,49 @@
     }
     
     .comments-section {
-      max-height: 200px;
+      max-height: 250px;
       overflow-y: auto;
       margin-bottom: 1rem;
     }
     .comment {
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
+      padding: 0.6rem;
+      margin-bottom: 0.6rem;
       background: #f8fafc;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .comment-content {
+      flex: 1;
     }
     .comment-author {
       font-weight: 600;
       color: var(--primary);
       font-size: 0.8rem;
       margin-bottom: 0.2rem;
+    }
+    .comment-text {
+      color: var(--text);
+      word-break: break-word;
+    }
+    .comment-delete {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.2rem;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .comment-delete:hover {
+      opacity: 1;
+      background: #fee2e2;
+      border-radius: 4px;
     }
     .comment-form {
       display: flex;
@@ -627,7 +654,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
@@ -707,6 +734,14 @@
       state.unsubscribe = onSnapshot(q, (snapshot) => {
         state.notes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         renderNotes();
+        // Si hay un modal de comentarios abierto, actualizarlo
+        if (state.currentNoteId) {
+          const note = state.notes.find(n => n.id === state.currentNoteId);
+          if (note) {
+            renderComments(note);
+            document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions?.comments || 0})`;
+          }
+        }
       }, (error) => {
         console.error('Error:', error);
         els.board.innerHTML = '';
@@ -782,15 +817,23 @@
     function renderComments(note) {
       const list = document.getElementById('commentsList');
       const comments = note.comments || [];
+      const currentUserId = state.currentUser?.uid;
+      
       if (comments.length === 0) {
         list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Sin comentarios</p>';
       } else {
-        list.innerHTML = comments.map(c => `
-          <div class="comment">
-            <div class="comment-author">${escapeHtml(c.author)}</div>
-            <div>${escapeHtml(c.text)}</div>
-          </div>
-        `).join('');
+        list.innerHTML = comments.map((c, index) => {
+          const canDelete = c.authorId === currentUserId;
+          return `
+            <div class="comment" data-index="${index}">
+              <div class="comment-content">
+                <div class="comment-author">${escapeHtml(c.author)}</div>
+                <div class="comment-text">${escapeHtml(c.text)}</div>
+              </div>
+              ${canDelete ? `<button class="comment-delete" onclick="deleteComment('${note.id}', ${index})" title="Eliminar comentario">✕</button>` : ''}
+            </div>
+          `;
+        }).join('');
       }
     }
 
@@ -820,20 +863,34 @@
         
         input.value = '';
         showToast('✅ Comentario enviado');
-        
-        // Actualizar UI localmente
-        const note = state.notes.find(n => n.id === state.currentNoteId);
-        if (note) {
-          if (!note.comments) note.comments = [];
-          note.comments.push(newComment);
-          note.reactions = note.reactions || { likes: 0, comments: 0 };
-          note.reactions.comments = (note.reactions.comments || 0) + 1;
-          renderComments(note);
-          document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions.comments})`;
-        }
+        // No actualizamos manualmente, dejamos que Firestore lo haga via onSnapshot
       } catch (error) {
         console.error('Error al comentar:', error);
         showToast('❌ Error: ' + error.message);
+      }
+    }
+
+    async function deleteComment(noteId, commentIndex) {
+      if (!confirm('¿Eliminar este comentario?')) return;
+      
+      try {
+        const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
+        const note = state.notes.find(n => n.id === noteId);
+        
+        if (!note || !note.comments) return;
+        
+        // Filtrar el comentario a eliminar
+        const updatedComments = note.comments.filter((_, idx) => idx !== commentIndex);
+        
+        await updateDoc(noteRef, {
+          comments: updatedComments,
+          'reactions.comments': increment(-1)
+        });
+        
+        showToast('🗑️ Comentario eliminado');
+      } catch (error) {
+        console.error('Error al eliminar:', error);
+        showToast('❌ Error al eliminar: ' + error.message);
       }
     }
 
@@ -1057,6 +1114,7 @@
     window.toggleLike = toggleLike;
     window.openComments = openComments;
     window.filterByTag = filterByTag;
+    window.deleteComment = deleteComment;
   </script>
 </body>
 </html>
