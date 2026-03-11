@@ -133,7 +133,7 @@
     
     .search-box {
       flex: 1;
-      min-width: 150px;
+      min-width: 200px;
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -174,13 +174,8 @@
       display: flex;
       gap: 0.5rem;
       align-items: center;
-    }
-    
-    .toolbar-right {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-left: auto;
+      flex-wrap: wrap;
+      flex: 1;
     }
     
     #board {
@@ -482,15 +477,17 @@
       .landing { padding: 1.5rem 1rem; }
       .landing-logo { font-size: 1.7rem; }
       .toolbar { 
-        flex-wrap: nowrap;
-        overflow-x: auto;
+        flex-wrap: wrap;
       }
-      .toolbar-left, .toolbar-right {
-        flex-shrink: 0;
+      .toolbar-left {
+        width: 100%;
+        justify-content: flex-start;
       }
       .search-box { 
-        min-width: 120px;
-        flex: 1;
+        width: 100%;
+        min-width: 100%;
+        margin-top: 0.5rem;
+        order: 3;
       }
       .note { max-height: none; }
       .note-content { max-height: none; overflow: visible; }
@@ -535,8 +532,6 @@
           <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
           <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
         </div>
-      </div>
-      <div class="toolbar-right">
         <div class="search-box">
           <input type="search" id="searchInput" placeholder="Buscar...">
         </div>
@@ -632,7 +627,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
@@ -810,25 +805,31 @@
       try {
         const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
         
-        // Usar increment en lugar de calcular manualmente
+        // Crear el comentario con timestamp separado
+        const newComment = {
+          author: state.currentUser.displayName || 'Usuario',
+          authorId: state.currentUser.uid,
+          text: text,
+          createdAt: new Date().toISOString()
+        };
+        
         await updateDoc(noteRef, {
-          comments: arrayUnion({
-            author: state.currentUser.displayName || 'Usuario',
-            authorId: state.currentUser.uid,
-            text: text,
-            createdAt: serverTimestamp()
-          }),
+          comments: arrayUnion(newComment),
           'reactions.comments': increment(1)
         });
         
         input.value = '';
         showToast('✅ Comentario enviado');
         
-        // Recargar comentarios
+        // Actualizar UI localmente
         const note = state.notes.find(n => n.id === state.currentNoteId);
         if (note) {
+          if (!note.comments) note.comments = [];
+          note.comments.push(newComment);
+          note.reactions = note.reactions || { likes: 0, comments: 0 };
+          note.reactions.comments = (note.reactions.comments || 0) + 1;
           renderComments(note);
-          document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${(note.reactions?.comments || 0) + 1})`;
+          document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions.comments})`;
         }
       } catch (error) {
         console.error('Error al comentar:', error);
@@ -861,7 +862,7 @@
 
     function createNoteHTML(note) {
       const isOwner = note.authorId === state.currentUser?.uid;
-      const date = note.createdAt?.toDate?.() || new Date();
+      const date = note.createdAt?.toDate?.() || new Date(note.createdAt);
       const dateStr = date.toLocaleDateString('es-ES', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
       
       let media = '';
