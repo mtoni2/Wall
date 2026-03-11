@@ -25,11 +25,13 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem 1rem;
+      padding: 2rem;
       text-align: center;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%), 
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23f8fafc" width="1200" height="800"/><image href="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=800&fit=crop" opacity="0.15" width="1200" height="800"/></svg>');
       background-size: cover;
       background-position: center;
+      background-blend-mode: overlay;
       color: var(--text);
       position: relative;
     }
@@ -44,7 +46,7 @@
     .landing.hidden { display: none !important; }
     
     .landing-logo {
-      font-size: 2rem;
+      font-size: 2.5rem;
       font-weight: 800;
       margin-bottom: 0.5rem;
       display: flex;
@@ -54,30 +56,30 @@
       color: var(--text);
     }
     .landing-subtitle {
-      font-size: 1rem;
+      font-size: 1.2rem;
       color: var(--text-muted);
       margin-bottom: 1rem;
       font-weight: 400;
     }
     .landing-description {
-      font-size: 0.95rem;
+      font-size: 1.1rem;
       color: var(--text-muted);
-      max-width: 400px;
-      margin: 0 auto 1.5rem;
+      max-width: 500px;
+      margin: 0 auto 2rem;
       line-height: 1.6;
     }
     
     .google-btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
       background: white;
       color: #333;
       border: none;
-      padding: 0.8rem 1.5rem;
+      padding: 0.9rem 2rem;
       border-radius: 12px;
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1rem;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(0,0,0,0.15);
       transition: transform 0.15s, box-shadow 0.15s;
@@ -86,34 +88,34 @@
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0,0,0,0.2);
     }
-    .google-btn img { width: 20px; height: 20px; }
+    .google-btn img { width: 24px; height: 24px; }
     
     .welcome-msg {
       margin-top: 1.5rem;
-      font-size: 0.95rem;
+      font-size: 1rem;
       color: var(--primary);
       font-weight: 500;
     }
 
     .landing-footer {
       position: absolute;
-      bottom: 1rem;
+      bottom: 1.5rem;
       left: 0;
       right: 0;
       text-align: center;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       z-index: 1;
     }
 
-    /* === APP UI === */
+    /* === APP UI (post-login) === */
     .app-ui { display: none; }
     .app-ui.visible { display: block; }
     
     header {
       background: white;
       color: var(--text);
-      padding: 0.7rem 1rem;
+      padding: 0.8rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -124,50 +126,47 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
     .header-title {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.4rem;
     }
-    .user-section { display: flex; align-items: center; gap: 0.5rem; }
-    .user-info { text-align: right; display: none; }
-    .user-info.show { display: block; }
-    .user-name { font-weight: 600; font-size: 0.8rem; }
-    .user-email { font-size: 0.65rem; color: var(--text-muted); display: none; }
+    .user-section { display: flex; align-items: center; gap: 1rem; }
+    .user-info { text-align: right; }
+    .user-name { font-weight: 600; font-size: 0.9rem; }
+    .user-email { font-size: 0.75rem; color: var(--text-muted); }
     .avatar {
-      width: 32px; height: 32px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: var(--primary); color: white;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 0.8rem;
+      font-weight: 700; font-size: 0.9rem;
     }
     
     .toolbar {
-      padding: 0.6rem 1rem;
+      padding: 0.8rem 1.5rem;
       background: white;
       border-bottom: 1px solid var(--border);
       display: flex;
-      gap: 0.4rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
-      align-items: center;
       position: sticky;
-      top: 52px;
+      top: 57px;
       z-index: 99;
     }
     .btn {
-      padding: 0.45rem 0.85rem;
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 8px;
       background: var(--primary);
       color: white;
       cursor: pointer;
       font-weight: 500;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 0.3rem;
       transition: background 0.2s;
-      white-space: nowrap;
     }
     .btn:hover { background: var(--primary-hover); }
     .btn-outline {
@@ -176,124 +175,112 @@
       color: var(--text);
     }
     .btn-outline:hover { background: #f8fafc; }
-    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.8rem; }
     .btn-danger { background: var(--danger); }
     .btn-danger:hover { background: #dc2626; }
     
     .search-box {
+      margin-left: auto;
       display: flex;
       align-items: center;
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 0.25rem 0.6rem;
-      flex: 1;
-      min-width: 120px;
+      padding: 0.3rem 0.8rem;
     }
     .search-box input {
       border: none;
       background: transparent;
-      padding: 0.25rem;
-      font-size: 0.85rem;
-      width: 100%;
+      padding: 0.3rem;
+      font-size: 0.9rem;
+      width: 180px;
       outline: none;
     }
-    
-    .toolbar-right {
-      display: flex;
-      gap: 0.3rem;
-      align-items: center;
-      margin-left: auto;
-    }
-    
-    .bg-color-selector {
-      display: flex;
-      gap: 0.25rem;
-      align-items: center;
-      padding: 0.2rem 0.5rem;
-      background: #f8fafc;
+    .layout-selector { display: flex; gap: 0.2rem; }
+    .layout-btn {
+      width: 34px; height: 34px;
       border: 1px solid var(--border);
-      border-radius: 20px;
-    }
-    .bg-color-option {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid transparent;
+      border-radius: 6px;
+      background: white;
       cursor: pointer;
-      transition: transform 0.15s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s;
     }
-    .bg-color-option:hover { transform: scale(1.2); }
-    .bg-color-option.active {
-      border-color: var(--text);
-      box-shadow: 0 0 0 2px white;
+    .layout-btn.active {
+      border-color: var(--primary);
+      background: #eef2ff;
+      color: var(--primary);
     }
     
     #board {
-      padding: 1rem;
-      min-height: calc(100vh - 130px);
-      transition: background 0.3s;
+      padding: 1.2rem 1.5rem;
+      min-height: calc(100vh - 140px);
     }
-    
     .board-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1rem;
-      align-items: start;
+    }
+    .board-canvas {
+      position: relative;
+      min-height: 600px;
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .board-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
     }
     
     .note {
       background: var(--card-bg);
-      border-radius: 10px;
+      border-radius: 12px;
+      padding: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       border: 1px solid var(--border);
-      transition: transform 0.15s, box-shadow 0.15s;
+      transition: transform 0.15s;
       position: relative;
-      overflow: hidden;
+      overflow: hidden; /* Previene que nada se salga */
     }
     .note:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
-    
-    .board-grid .note {
-      padding: 0.9rem;
-      height: auto;
-      display: flex;
-      flex-direction: column;
-    }
-    
     .note-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 0.6rem;
-      padding-bottom: 0.5rem;
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.6rem;
       border-bottom: 1px solid var(--border);
     }
     .note-author {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
-      font-size: 0.8rem;
+      gap: 0.4rem;
+      font-size: 0.85rem;
       font-weight: 500;
     }
     .note-author .avatar {
-      width: 22px; height: 22px;
-      font-size: 0.7rem;
+      width: 24px; height: 24px;
+      font-size: 0.75rem;
     }
     .note-date {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
     }
-    .note-actions { display: flex; gap: 0.15rem; }
+    .note-actions { display: flex; gap: 0.2rem; }
     .note-actions button {
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 1rem;
       opacity: 0.7;
-      padding: 0.15rem;
+      padding: 0.2rem;
       border-radius: 4px;
       transition: opacity 0.2s, background 0.2s;
     }
@@ -303,66 +290,51 @@
     }
     .note-title {
       font-weight: 600;
-      margin-bottom: 0.35rem;
-      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      font-size: 1.05rem;
     }
     .note-content {
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.7rem;
       color: #334155;
       white-space: pre-wrap;
-      flex: 1;
-      font-size: 0.9rem;
     }
-    
-    .note-content img {
-      max-width: 100%;
-      max-height: 250px;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      border-radius: 6px;
-      margin-top: 0.35rem;
-      display: block;
-    }
-    
+    .note-content img,
     .note-content video {
       max-width: 100%;
-      max-height: 250px;
-      border-radius: 6px;
-      margin-top: 0.35rem;
+      max-height: 250px; /* Limita altura máxima */
+      width: auto;
+      height: auto;
+      object-fit: contain; /* Mantiene proporción */
+      border-radius: 8px;
+      margin-top: 0.4rem;
       display: block;
     }
-    
     .note-content iframe {
       max-width: 100%;
-      border-radius: 6px;
-      margin-top: 0.35rem;
-      aspect-ratio: 16/9;
+      border-radius: 8px;
+      margin-top: 0.4rem;
     }
-    
     .note-content a.link-card {
       display: block;
-      padding: 0.6rem;
+      padding: 0.7rem;
       background: #f8fafc;
-      border-radius: 6px;
+      border-radius: 8px;
       text-decoration: none;
       color: var(--primary);
-      margin-top: 0.35rem;
+      margin-top: 0.4rem;
       border: 1px solid var(--border);
       word-break: break-all;
-      font-size: 0.85rem;
     }
     .note-content a.link-card:hover { background: #f1f5f9; }
-    
     .note-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.25rem;
-      margin-bottom: 0.6rem;
+      gap: 0.3rem;
+      margin-bottom: 0.7rem;
     }
     .tag {
-      font-size: 0.65rem;
-      padding: 0.15rem 0.4rem;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
       background: #eef2ff;
       color: var(--primary);
       border-radius: 20px;
@@ -370,35 +342,27 @@
       cursor: pointer;
     }
     .tag:hover { background: #dbeafe; }
-    
     .note-reactions {
       display: flex;
-      gap: 0.7rem;
-      font-size: 0.8rem;
+      gap: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       border-top: 1px solid var(--border);
-      padding-top: 0.5rem;
-      margin-top: auto;
+      padding-top: 0.6rem;
     }
     .reaction-btn {
       display: flex;
       align-items: center;
-      gap: 0.15rem;
+      gap: 0.2rem;
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.15rem 0.3rem;
+      padding: 0.2rem 0.4rem;
       border-radius: 4px;
-      transition: all 0.2s;
+      transition: background 0.2s;
     }
     .reaction-btn:hover { background: #f1f5f9; }
-    .reaction-btn.active {
-      color: var(--primary);
-      font-weight: 600;
-      background: #eef2ff;
-    }
     
-    /* MODAL */
     .modal {
       display: none;
       position: fixed;
@@ -412,43 +376,44 @@
     .modal.active { display: flex; }
     .modal-content {
       background: white;
-      border-radius: 14px;
+      border-radius: 16px;
       width: 100%;
-      max-width: 480px;
-      max-height: 90vh;
+      max-width: 520px;
+      max-height: 92vh;
       overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0,0,0,0.25);
     }
     .modal-header {
-      padding: 1rem 1.2rem;
+      padding: 1.1rem 1.4rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .modal-header h3 { font-size: 1.1rem; }
-    .modal-body { padding: 1.2rem; }
+    .modal-header h3 { font-size: 1.2rem; }
+    .modal-body { padding: 1.3rem 1.4rem; }
     .modal-footer {
-      padding: 0.8rem 1.2rem;
+      padding: 0.9rem 1.4rem;
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: flex-end;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
-    .form-group { margin-bottom: 0.9rem; }
+    .form-group { margin-bottom: 1rem; }
     .form-group label {
       display: block;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.4rem;
       font-weight: 500;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
     .form-group input,
     .form-group textarea {
       width: 100%;
-      padding: 0.65rem 0.8rem;
+      padding: 0.7rem 0.9rem;
       border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
     }
     .form-group input:focus,
     .form-group textarea:focus {
@@ -456,28 +421,29 @@
       border-color: var(--primary);
     }
     .form-group textarea {
-      min-height: 80px;
+      min-height: 90px;
       resize: vertical;
     }
     .form-hint {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 0.25rem;
+      margin-top: 0.3rem;
     }
     
     .post-types {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.35rem;
+      gap: 0.4rem;
     }
     .post-type-btn {
-      padding: 0.6rem 0.3rem;
+      padding: 0.7rem 0.4rem;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 10px;
       background: white;
       cursor: pointer;
       text-align: center;
-      font-size: 0.75rem;
+      transition: all 0.2s;
+      font-size: 0.8rem;
     }
     .post-type-btn:hover,
     .post-type-btn.active {
@@ -486,22 +452,23 @@
       color: var(--primary);
     }
     .post-type-btn .icon {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       display: block;
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.2rem;
     }
     
     .color-picker {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.4rem;
       flex-wrap: wrap;
     }
     .color-option {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       border: 2px solid transparent;
       cursor: pointer;
+      transition: transform 0.15s;
     }
     .color-option:hover { transform: scale(1.15); }
     .color-option.selected {
@@ -509,90 +476,32 @@
       box-shadow: 0 0 0 2px white;
     }
     
-    /* Comentarios */
-    .comments-section {
-      margin-top: 0.6rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--border);
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    .comment {
-      padding: 0.4rem;
-      margin-bottom: 0.4rem;
-      background: #f8fafc;
-      border-radius: 6px;
-      font-size: 0.8rem;
-    }
-    .comment-author {
-      font-weight: 600;
-      color: var(--primary);
-      font-size: 0.75rem;
-      margin-bottom: 0.2rem;
-    }
-    .comment-text {
-      color: var(--text);
-      word-break: break-word;
-    }
-    .comment-form {
-      display: flex;
-      gap: 0.3rem;
-      margin-top: 0.5rem;
-    }
-    .comment-form input {
-      flex: 1;
-      padding: 0.4rem 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 0.8rem;
-      outline: none;
-    }
-    .comment-form input:focus {
-      border-color: var(--primary);
-    }
-    .comment-form button {
-      padding: 0.4rem 0.8rem;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
-    .comment-form button:hover {
-      background: var(--primary-hover);
-    }
-    
     .empty-state {
       text-align: center;
-      padding: 2.5rem 1rem;
+      padding: 3rem 1rem;
       color: var(--text-muted);
     }
     .empty-state .icon {
-      font-size: 2.5rem;
-      margin-bottom: 0.8rem;
+      font-size: 3rem;
+      margin-bottom: 1rem;
       display: block;
     }
-    .empty-state p { margin-bottom: 0.8rem; font-size: 0.95rem; }
     
     .toast {
       position: fixed;
-      bottom: 1rem;
-      right: 1rem;
-      left: 1rem;
+      bottom: 1.5rem;
+      right: 1.5rem;
       background: #1e293b;
       color: white;
-      padding: 0.7rem 1rem;
+      padding: 0.8rem 1.2rem;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
       z-index: 300;
       animation: slideIn 0.3s ease;
-      text-align: center;
-      font-size: 0.85rem;
     }
     @keyframes slideIn {
-      from { transform: translateY(100px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
     
     .loading {
@@ -611,44 +520,19 @@
     }
     
     @media (max-width: 640px) {
-      .landing-logo { font-size: 1.7rem; }
-      .landing-subtitle { font-size: 0.9rem; }
-      .landing-description { font-size: 0.85rem; }
-      
-      header { padding: 0.6rem 0.8rem; }
-      .header-title { font-size: 1rem; }
-      .user-email { display: none; }
-      .user-name { font-size: 0.75rem; }
-      
-      .toolbar {
-        padding: 0.5rem 0.8rem;
-        top: 48px;
-      }
-      .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
-      .search-box { min-width: 100px; }
-      .search-box input { font-size: 0.8rem; }
-      
-      .bg-color-selector { display: flex; }
-      
-      .note-header { margin-bottom: 0.5rem; padding-bottom: 0.4rem; }
-      .note-title { font-size: 0.9rem; }
-      .note-content { font-size: 0.85rem; }
-      .note-content img, .note-content video { max-height: 200px; }
-      
-      .modal-content { max-width: 95vw; border-radius: 12px; }
-      .modal-header { padding: 0.9rem 1rem; }
-      .modal-body { padding: 1rem; }
-      .modal-footer { padding: 0.7rem 1rem; }
-      
-      .post-types { grid-template-columns: repeat(3, 1fr); gap: 0.25rem; }
-      .post-type-btn { padding: 0.5rem 0.2rem; font-size: 0.7rem; }
-      .post-type-btn .icon { font-size: 1rem; }
+      .landing-logo { font-size: 2rem; }
+      .landing-description { font-size: 1rem; }
+      header, .toolbar { padding: 0.8rem 1rem; }
+      .search-box { width: 100%; margin-left: 0; margin-top: 0.4rem; }
+      .search-box input { width: 100%; }
+      .post-types { grid-template-columns: repeat(2, 1fr); }
+      #board { padding: 0.8rem 1rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- === LANDING PAGE === -->
+  <!-- === LANDING PAGE (antes de login) === -->
   <main class="landing" id="landingPage">
     <div class="landing-logo">📌 Muro de Ideas Pro</div>
     <div class="landing-subtitle">Wall Escolar</div>
@@ -666,13 +550,14 @@
     </footer>
   </main>
 
-  <!-- === APP UI === -->
+  <!-- === APP UI (después de login) === -->
   <div class="app-ui" id="appUI">
     
+    <!-- Header -->
     <header>
       <div class="header-title">📌 Muro de Ideas</div>
       <div class="user-section">
-        <div class="user-info" id="userInfo">
+        <div class="user-info">
           <div class="user-name" id="userName"></div>
           <div class="user-email" id="userEmail"></div>
         </div>
@@ -681,25 +566,23 @@
       </div>
     </header>
 
+    <!-- Toolbar (con botón de crear nota) -->
     <div class="toolbar">
       <button class="btn" id="btnNewNote">+ NOTA</button>
-      
-      <div class="toolbar-right">
+      <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center">
         <div class="search-box">
           <input type="search" id="searchInput" placeholder="Buscar...">
         </div>
-        
-        <div class="bg-color-selector" id="bgColorSelector" title="Color de fondo">
-          <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
-          <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
-          <div class="bg-color-option" style="background:#dbeafe" data-color="#dbeafe"></div>
-          <div class="bg-color-option" style="background:#dcfce7" data-color="#dcfce7"></div>
-          <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
-          <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
+        <div class="layout-selector">
+          <button class="layout-btn active" data-layout="grid" title="Cuadrícula">▦</button>
+          <button class="layout-btn" data-layout="canvas" title="Lienzo">✏️</button>
+          <button class="layout-btn" data-layout="list" title="Lista">☰</button>
         </div>
+        <button class="btn btn-outline" id="btnExport" title="Exportar">📤</button>
       </div>
     </div>
 
+    <!-- Board -->
     <main id="board" class="board-grid">
       <div class="empty-state" id="emptyState">
         <span class="icon">✨</span>
@@ -710,7 +593,7 @@
 
   </div>
 
-  <!-- Modal Nueva/Editar Nota -->
+  <!-- Modal: Nueva/Editar Nota -->
   <div class="modal" id="noteModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -767,30 +650,16 @@
     </div>
   </div>
 
-  <!-- Modal Comentarios -->
-  <div class="modal" id="commentsModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="commentsModalTitle">💬 Comentarios</h3>
-        <button class="btn btn-outline btn-sm" id="closeCommentsModal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div id="commentsList" class="comments-section"></div>
-        <div class="comment-form">
-          <input type="text" id="commentInput" placeholder="Escribe un comentario...">
-          <button id="addCommentBtn">Enviar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div id="toastContainer"></div>
 
+  <!-- Firebase SDK + App Logic -->
   <script type="module">
+    // ✅ Firebase SDK v10 (estable)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
+    // 🔥 TU CONFIGURACIÓN DE FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
       authDomain: "wall-5b79c.firebaseapp.com",
@@ -801,22 +670,24 @@
       measurementId: "G-PKW4S5Q177"
     };
 
+    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    // Estado
     const state = {
       currentUser: null,
       boardId: 'default_board',
       notes: [],
       unsubscribe: null,
+      currentLayout: 'grid',
       selectedColor: '#ffffff',
-      boardBgColor: '#f8fafc',
-      editingNoteId: null,
-      currentNoteId: null
+      editingNoteId: null
     };
 
+    // DOM Elements
     const els = {
       landingPage: document.getElementById('landingPage'),
       appUI: document.getElementById('appUI'),
@@ -824,36 +695,34 @@
       board: document.getElementById('board'),
       emptyState: document.getElementById('emptyState'),
       noteModal: document.getElementById('noteModal'),
-      commentsModal: document.getElementById('commentsModal'),
       searchInput: document.getElementById('searchInput'),
-      toastContainer: document.getElementById('toastContainer'),
-      bgColorSelector: document.getElementById('bgColorSelector'),
-      userInfo: document.getElementById('userInfo')
+      toastContainer: document.getElementById('toastContainer')
     };
 
-    // === AUTH ===
+    // === AUTH STATE ===
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        // Usuario logueado: mostrar app
         state.currentUser = user;
         document.getElementById('userName').textContent = user.displayName || 'Usuario';
         document.getElementById('userEmail').textContent = user.email;
         document.getElementById('userAvatar').textContent = (user.displayName?.[0] || 'U').toUpperCase();
-        els.userInfo.classList.add('show');
         
         els.landingPage.classList.add('hidden');
         els.appUI.classList.add('visible');
         
         subscribeToNotes();
       } else {
+        // Usuario no logueado: mostrar landing
         state.currentUser = null;
         if (state.unsubscribe) state.unsubscribe();
-        els.userInfo.classList.remove('show');
         
         els.landingPage.classList.remove('hidden');
         els.appUI.classList.remove('visible');
       }
     });
 
+    // Login con Google
     document.getElementById('googleLogin').onclick = async () => {
       try {
         await signInWithPopup(auth, provider);
@@ -861,22 +730,27 @@
         els.welcomeMsg.style.display = 'block';
         setTimeout(() => els.welcomeMsg.style.display = 'none', 2000);
       } catch (error) {
+        console.error('Error login:', error);
         showToast('❌ Error: ' + (error.message || 'Revisa la consola'));
       }
     };
 
+    // Logout
     document.getElementById('btnLogout').onclick = async () => {
       await signOut(auth);
       showToast('👋 Sesión cerrada');
     };
 
-    // === FIRESTORE ===
+    // === FIRESTORE: Suscribirse a notas ===
     function subscribeToNotes() {
       if (state.unsubscribe) state.unsubscribe();
       
-      els.board.innerHTML = '<div class="loading">Cargando</div>';
+      els.board.innerHTML = '<div class="loading">Cargando notas</div>';
       
-      const q = query(collection(db, 'boards', state.boardId, 'notes'), orderBy('createdAt', 'desc'));
+      const q = query(
+        collection(db, 'boards', state.boardId, 'notes'),
+        orderBy('createdAt', 'desc')
+      );
       
       state.unsubscribe = onSnapshot(q, 
         (snapshot) => {
@@ -884,22 +758,25 @@
           renderNotes();
         },
         (error) => {
-          console.error('Error:', error);
+          console.error('Error Firestore:', error);
+          if (error.code === 'permission-denied') {
+            showToast('⚠️ Revisa las reglas de Firestore');
+          }
           els.board.innerHTML = '';
           els.board.appendChild(els.emptyState);
         }
       );
     }
 
+    // === OPERACIONES FIRESTORE ===
     async function saveNoteToFirestore(noteData) {
       const notesRef = collection(db, 'boards', state.boardId, 'notes');
       
       if (state.editingNoteId) {
         await updateDoc(doc(notesRef, state.editingNoteId), {
-          ...noteData,
-          updatedAt: serverTimestamp()
+          ...noteData, updatedAt: serverTimestamp()
         });
-        showToast('✅ Actualizada');
+        showToast('✅ Nota actualizada');
       } else {
         await addDoc(notesRef, {
           ...noteData,
@@ -907,92 +784,25 @@
           author: state.currentUser.displayName || 'Usuario',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
-          reactions: { likes: 0, comments: 0 },
-          likedBy: [],
-          comments: []
+          reactions: { likes: 0, comments: 0 }
         });
-        showToast('✅ Creada');
+        showToast('✅ Nota creada');
       }
     }
 
     async function deleteNoteFromFirestore(noteId) {
       await deleteDoc(doc(db, 'boards', state.boardId, 'notes', noteId));
-      showToast('🗑️ Eliminada');
+      showToast('🗑️ Nota eliminada');
     }
 
-    async function toggleLike(noteId) {
+    async function updateReaction(noteId, field) {
       const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
       const note = state.notes.find(n => n.id === noteId);
-      if (!note) return;
-      
-      const userId = state.currentUser.uid;
-      const hasLiked = note.likedBy?.includes(userId);
-      
-      if (hasLiked) {
+      if (note) {
         await updateDoc(noteRef, {
-          likedBy: arrayRemove(userId),
-          'reactions.likes': note.reactions?.likes > 0 ? note.reactions.likes - 1 : 0
-        });
-      } else {
-        await updateDoc(noteRef, {
-          likedBy: arrayUnion(userId),
-          'reactions.likes': (note.reactions?.likes || 0) + 1
+          [`reactions.${field}`]: (note.reactions?.[field] || 0) + 1
         });
       }
-    }
-
-    function openCommentsModal(noteId) {
-      state.currentNoteId = noteId;
-      const note = state.notes.find(n => n.id === noteId);
-      if (!note) return;
-      
-      document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions?.comments || 0})`;
-      renderComments(note);
-      els.commentsModal.classList.add('active');
-      document.getElementById('commentInput').focus();
-    }
-
-    function closeCommentsModal() {
-      els.commentsModal.classList.remove('active');
-      state.currentNoteId = null;
-    }
-
-    function renderComments(note) {
-      const list = document.getElementById('commentsList');
-      const comments = note.comments || [];
-      
-      if (comments.length === 0) {
-        list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Sin comentarios aún</p>';
-      } else {
-        list.innerHTML = comments.map(c => `
-          <div class="comment">
-            <div class="comment-author">${escapeHtml(c.author)}</div>
-            <div class="comment-text">${escapeHtml(c.text)}</div>
-          </div>
-        `).join('');
-      }
-    }
-
-    async function addComment() {
-      const input = document.getElementById('commentInput');
-      const text = input.value.trim();
-      if (!text || !state.currentNoteId) return;
-      
-      const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
-      const note = state.notes.find(n => n.id === state.currentNoteId);
-      
-      await updateDoc(noteRef, {
-        comments: arrayUnion({
-          author: state.currentUser.displayName || 'Usuario',
-          authorId: state.currentUser.uid,
-          text: text,
-          createdAt: serverTimestamp()
-        }),
-        'reactions.comments': (note.reactions?.comments || 0) + 1
-      });
-      
-      input.value = '';
-      showToast('✅ Comentario agregado');
     }
 
     // === RENDER ===
@@ -1016,8 +826,10 @@
       }
       
       els.emptyState.style.display = 'none';
-      els.board.className = 'board-grid';
+      els.board.className = `board-${state.currentLayout}`;
       els.board.innerHTML = visible.map(note => createNoteHTML(note)).join('');
+      
+      if (state.currentLayout === 'canvas') setupCanvasDrag();
     }
 
     function createNoteHTML(note) {
@@ -1027,35 +839,32 @@
       
       let media = '';
       if (note.type === 'image' && note.url) {
-        media = `<img src="${escapeHtml(note.url)}" loading="lazy" onerror="this.parentElement.innerHTML='<p style=\\'color:var(--danger)\\'>❌ No cargó</p>'">`;
+        media = `<img src="${escapeHtml(note.url)}" alt="${escapeHtml(note.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<p style=\\'color:var(--danger)\\'>❌ Imagen no cargada</p>'">`;
       } else if (note.type === 'video' && note.url) {
         if (note.url.includes('youtube.com') || note.url.includes('youtu.be')) {
           const vid = note.url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/)?.[1];
-          if (vid) media = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
+          if (vid) media = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen style="width:100%;aspect-ratio:16/9;border-radius:8px;margin-top:0.4rem"></iframe>`;
         } else if (note.url.match(/\.(mp4|webm|ogg)$/i)) {
-          media = `<video controls src="${escapeHtml(note.url)}"></video>`;
+          media = `<video controls src="${escapeHtml(note.url)}" style="width:100%;border-radius:8px;margin-top:0.4rem"></video>`;
         } else {
-          media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🎬 Ver video</a>`;
+          media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🎬 Ver video externo</a>`;
         }
       } else if (note.type === 'link' && note.url) {
         media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🔗 ${escapeHtml(note.url.replace(/^https?:\/\//,''))}</a>`;
       }
       
       const tags = note.tags?.map(t => `<span class="tag" onclick="filterByTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('') || '';
-      
-      const hasLiked = note.likedBy?.includes(state.currentUser?.uid);
-      
       const actions = isOwner ? 
         `<button title="Editar" onclick="window.editNote('${note.id}')">✏️</button>
-         <button title="Eliminar" onclick="window.deleteNote('${note.id}')" style="color:var(--danger)">❌</button>` : '';
+         <button title="Eliminar" onclick="window.deleteNote('${note.id}')">🗑️</button>` : '';
       
       return `
         <article class="note" style="background:${note.color||'#fff'}" data-id="${note.id}">
           <div class="note-header">
-            <div style="display:flex;align-items:center;gap:0.3rem">
+            <div style="display:flex;align-items:center;gap:0.4rem">
               <div class="avatar">${(note.author?.[0]||'U').toUpperCase()}</div>
-              <span style="font-size:0.75rem;font-weight:500">${escapeHtml(note.author||'Anónimo')}</span>
-              <span style="font-size:0.65rem;color:var(--text-muted)">• ${dateStr}</span>
+              <span style="font-size:0.85rem;font-weight:500">${escapeHtml(note.author||'Anónimo')}</span>
+              <span style="font-size:0.75rem;color:var(--text-muted)">• ${dateStr}</span>
             </div>
             <div class="note-actions">${actions}</div>
           </div>
@@ -1064,18 +873,14 @@
           ${media}
           ${tags ? `<div class="note-tags">${tags}</div>`:''}
           <div class="note-reactions">
-            <button class="reaction-btn ${hasLiked ? 'active' : ''}" onclick="window.toggleLike('${note.id}')">
-              👍 <span>${note.reactions?.likes || 0}</span>
-            </button>
-            <button class="reaction-btn" onclick="window.openComments('${note.id}')">
-              💬 <span>${note.reactions?.comments || 0}</span>
-            </button>
+            <button class="reaction-btn" onclick="window.react('${note.id}','likes')">👍 <span>${note.reactions?.likes||0}</span></button>
+            <button class="reaction-btn" onclick="window.react('${note.id}','comments')">💬 <span>${note.reactions?.comments||0}</span></button>
           </div>
         </article>
       `;
     }
 
-    // === MODAL NOTA ===
+    // === MODAL ===
     function openNoteModal(noteId = null) {
       state.editingNoteId = noteId;
       
@@ -1132,33 +937,30 @@
       } else {
         field.style.display = 'block';
         content.style.display = type === 'link' ? 'none' : 'block';
-        if (type === 'image') { label.textContent = 'URL de imagen'; hint.textContent = 'JPG, PNG, GIF'; }
-        else if (type === 'video') { label.textContent = 'URL de video'; hint.textContent = 'YouTube o MP4'; }
+        if (type === 'image') { label.textContent = 'URL de imagen'; hint.textContent = 'JPG, PNG, GIF directo'; }
+        else if (type === 'video') { label.textContent = 'URL de video'; hint.textContent = 'YouTube o MP4 directo'; }
         else if (type === 'link') { label.textContent = 'URL del enlace'; hint.textContent = 'https://...'; }
       }
     }
 
     async function handleSaveNote() {
       const title = document.getElementById('noteTitle').value.trim();
-      if (!title) { showToast('⚠️ Título obligatorio'); return; }
+      if (!title) { showToast('⚠️ El título es obligatorio'); return; }
       
       const type = document.querySelector('.post-type-btn.active').dataset.type;
       const url = document.getElementById('noteUrl').value.trim();
-      const content = document.getElementById('noteBody').value;
       
       if (['image','video','link'].includes(type) && url) {
-        try { new URL(url); } catch { showToast('⚠️ URL inválida'); return; }
+        try { new URL(url); } catch { showToast('⚠️ URL inválida (debe empezar con https://)'); return; }
       }
       
       const tags = document.getElementById('noteTags').value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
       
       await saveNoteToFirestore({
-        type, 
-        title,
-        content: type==='text'||type==='video' ? content : '',
+        type, title,
+        content: type==='text'||type==='video' ? document.getElementById('noteBody').value.trim() : '',
         url: ['image','video','link'].includes(type) ? url : null,
-        color: state.selectedColor, 
-        tags,
+        color: state.selectedColor, tags,
         private: document.getElementById('notePrivate').checked
       });
       
@@ -1185,6 +987,26 @@
       els.searchInput.dispatchEvent(new Event('input'));
     }
 
+    function setupCanvasDrag() {
+      let dragged = null;
+      els.board.querySelectorAll('.note').forEach(el => {
+        el.draggable = true;
+        el.style.position = 'absolute';
+        el.style.left = `${Math.random()*60+10}%`;
+        el.style.top = `${Math.random()*60+10}%`;
+        el.ondragstart = (e) => { dragged = el; el.classList.add('dragging'); };
+        el.ondragend = () => { dragged = null; el.classList.remove('dragging'); };
+      });
+      els.board.ondragover = e => e.preventDefault();
+      els.board.ondrop = (e) => {
+        e.preventDefault();
+        if (!dragged) return;
+        const r = els.board.getBoundingClientRect();
+        dragged.style.left = `${Math.max(0, Math.min(e.clientX-r.left-130, r.width-260))}px`;
+        dragged.style.top = `${Math.max(0, Math.min(e.clientY-r.top-100, r.height-200))}px`;
+      };
+    }
+
     // === EVENT LISTENERS ===
     document.getElementById('btnNewNote').onclick = () => openNoteModal();
     document.getElementById('btnNewNoteEmpty').onclick = () => openNoteModal();
@@ -1208,12 +1030,13 @@
       }
     );
     
-    document.querySelectorAll('.bg-color-option').forEach(opt => 
-      opt.onclick = () => {
-        document.querySelectorAll('.bg-color-option').forEach(o=>o.classList.remove('active'));
-        opt.classList.add('active');
-        state.boardBgColor = opt.dataset.color;
-        els.board.style.backgroundColor = opt.dataset.color;
+    document.querySelectorAll('.layout-btn').forEach(btn => 
+      btn.onclick = () => {
+        document.querySelectorAll('.layout-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentLayout = btn.dataset.layout;
+        els.board.className = `board-${state.currentLayout}`;
+        renderNotes();
       }
     );
     
@@ -1221,37 +1044,26 @@
     
     document.getElementById('btnExport').onclick = () => {
       const data = JSON.stringify(state.notes, null, 2);
-      navigator.clipboard?.writeText(data).then(()=>showToast('📋 Copiado'))
+      navigator.clipboard?.writeText(data).then(()=>showToast('📋 Copiado al portapapeles'))
         .catch(()=>{
           const blob = new Blob([data],{type:'application/json'});
           const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
           a.download = `muro-${new Date().toISOString().slice(0,10)}.json`; a.click();
-          showToast('📥 Descargado');
+          showToast('📥 Archivo descargado');
         });
     };
     
-    document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
-    document.getElementById('addCommentBtn').onclick = addComment;
-    document.getElementById('commentInput').onkeypress = (e) => {
-      if (e.key === 'Enter') addComment();
-    };
-    
     els.noteModal.onclick = (e) => { if(e.target===els.noteModal) closeModal(); };
-    els.commentsModal.onclick = (e) => { if(e.target===els.commentsModal) closeCommentsModal(); };
-    document.onkeydown = (e) => { 
-      if(e.key==='Escape') {
-        if (els.noteModal.classList.contains('active')) closeModal();
-        if (els.commentsModal.classList.contains('active')) closeCommentsModal();
-      }
-    };
+    document.onkeydown = (e) => { if(e.key==='Escape' && els.noteModal.classList.contains('active')) closeModal(); };
 
+    // === FUNCIONES GLOBALES ===
     window.editNote = (id) => openNoteModal(id);
-    window.deleteNote = async (id) => { if(confirm('¿Eliminar?')) await deleteNoteFromFirestore(id); };
-    window.toggleLike = toggleLike;
-    window.openComments = openCommentsModal;
+    window.deleteNote = async (id) => { if(confirm('¿Eliminar esta nota?')) await deleteNoteFromFirestore(id); };
+    window.react = async (id, field) => await updateReaction(id, field);
     window.filterByTag = filterByTag;
     window.closeModal = closeModal;
 
+    // Init
     document.querySelectorAll('.post-type-btn')[0]?.click();
   </script>
 </body>
