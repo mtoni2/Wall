@@ -27,8 +27,21 @@
       justify-content: center;
       padding: 2rem;
       text-align: center;
-      background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+      background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(168,85,247,0.15)),
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><rect fill="%23f8fafc" width="1200" height="800"/><g opacity="0.1"><rect x="100" y="150" width="300" height="200" fill="%234f46e5" rx="10"/><rect x="500" y="100" width="250" height="180" fill="%237c3aed" rx="10"/><rect x="850" y="200" width="280" height="220" fill="%23a855f7" rx="10"/><rect x="200" y="450" width="320" height="190" fill="%236366f1" rx="10"/><rect x="650" y="400" width="290" height="210" fill="%238b5cf6" rx="10"/></g></svg>');
+      background-size: cover;
+      background-position: center;
+      background-blend-mode: overlay;
+      position: relative;
     }
+    .landing::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(139, 92, 246, 0.08);
+      pointer-events: none;
+    }
+    .landing > * { position: relative; z-index: 1; }
     .landing.hidden { display: none !important; }
     .landing-logo { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
     .landing-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem; }
@@ -94,6 +107,7 @@
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      flex-wrap: wrap;
       position: sticky;
       top: 52px;
       z-index: 99;
@@ -118,7 +132,7 @@
     
     .search-box {
       flex: 1;
-      max-width: 300px;
+      min-width: 150px;
       background: #f8fafc;
       border: 1px solid var(--border);
       border-radius: 20px;
@@ -147,6 +161,7 @@
       border-radius: 50%;
       border: 2px solid transparent;
       cursor: pointer;
+      flex-shrink: 0;
     }
     .bg-color-option:hover { transform: scale(1.2); }
     .bg-color-option.active {
@@ -453,11 +468,17 @@
       .landing { padding: 1.5rem 1rem; }
       .landing-logo { font-size: 1.7rem; }
       .toolbar { flex-wrap: wrap; }
-      .search-box { order: 3; max-width: 100%; margin-top: 0.5rem; }
+      .search-box { order: 3; min-width: 100%; margin-top: 0.5rem; }
       .note { max-height: none; }
       .note-content { max-height: none; overflow: visible; }
       .note-content img, .note-content video { max-height: 180px; }
-      .bg-color-selector { display: none; }
+      .bg-color-selector { 
+        display: flex !important;
+        order: 4;
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
     }
   </style>
 </head>
@@ -761,23 +782,31 @@
     async function addComment() {
       const input = document.getElementById('commentInput');
       const text = input.value.trim();
-      if (!text || !state.currentNoteId) return;
+      if (!text || !state.currentNoteId) {
+        if (!text) showToast('⚠️ Escribe un comentario');
+        return;
+      }
       
-      const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
-      const note = state.notes.find(n => n.id === state.currentNoteId);
-      
-      await updateDoc(noteRef, {
-        comments: arrayUnion({
-          author: state.currentUser.displayName || 'Usuario',
-          authorId: state.currentUser.uid,
-          text: text,
-          createdAt: serverTimestamp()
-        }),
-        'reactions.comments': (note.reactions?.comments || 0) + 1
-      });
-      
-      input.value = '';
-      showToast('✅ Comentario agregado');
+      try {
+        const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
+        const note = state.notes.find(n => n.id === state.currentNoteId);
+        
+        await updateDoc(noteRef, {
+          comments: arrayUnion({
+            author: state.currentUser.displayName || 'Usuario',
+            authorId: state.currentUser.uid,
+            text: text,
+            createdAt: serverTimestamp()
+          }),
+          'reactions.comments': (note.reactions?.comments || 0) + 1
+        });
+        
+        input.value = '';
+        showToast('✅ Comentario enviado');
+      } catch (error) {
+        console.error('Error al comentar:', error);
+        showToast('❌ Error al enviar');
+      }
     }
 
     function renderNotes() {
@@ -962,8 +991,10 @@
     document.getElementById('cancelNote').onclick = closeModal;
     document.getElementById('saveNote').onclick = handleSaveNote;
     document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
-    document.getElementById('addCommentBtn').onclick = addComment;
-    document.getElementById('commentInput').onkeypress = (e) => { if(e.key==='Enter') addComment(); };
+    document.getElementById('addCommentBtn').addEventListener('click', addComment);
+    document.getElementById('commentInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addComment();
+    });
     
     document.querySelectorAll('.post-type-btn').forEach(btn => 
       btn.onclick = () => {
