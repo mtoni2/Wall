@@ -5,12 +5,14 @@
 ---
 
 ## 🚀 Acceso al Proyecto
+
 Puedes ver la aplicación funcionando aquí:
 👉 https://mtoni2.github.io/Wall/
 
 ---
 
 ## ✨ Características Principales
+
 * **Gestión en Tiempo Real:** Notas sincronizadas instantáneamente gracias a Firebase.
 * **Personalización Total:** Cambia colores de notas y fondos para organizar tus prioridades.
 * **Diseño Adaptable (Responsive):** Optimizado para una experiencia fluida tanto en PC como en móviles.
@@ -20,16 +22,35 @@ Puedes ver la aplicación funcionando aquí:
 ---
 
 ## 🛠️ Tecnologías Utilizadas
+
 * **Frontend:** HTML5, CSS3 (Flexbox/Grid) y JavaScript Vanilla.
 * **Backend & DB:** Firebase (Firestore & Auth).
 * **Estética:** Diseño minimalista inspirado en herramientas de productividad líderes.
 
 ---
 
+# 🛠️ Funciones
+
+* **🔐 Autenticación con Google:** - ✅ Funcional
+* **📝 Crear/Editar/Eliminar notas:** - ✅ Funcional
+* **🖼️ Imágenes, videos, enlaces:** - ✅ Por URL
+* **🎨 Colores de notas y fondo:** - ✅ 6 opciones
+* **👍 Likes con toggle:** - ✅ Ida y vuelta
+* **💬 Comentarios:** - ✅ Con eliminar (X roja)
+* **🏷️ Tags con filtro:** - ✅ Click para buscar
+* **📱 Responsive móvil/PC:** - ✅ Adaptativo
+* **🔍 Buscador en tiempo real:** - ✅ Funcional
+* **🎯 Solo modo cuadrícula:** - ✅ Optimizado
+* **🌈 Fondo con imagen sutil:** - ✅ Violeta transparente
+
+---
+
 ## 📸 Vista Previa
+
 ![Captura del Proyecto](https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80)
 
 ---
 
 ## 👤 Autor
-**Marcelo Tonini** - *Desarrollador*
+
+**Marcelo Tonini** - *Programador y Desarrollador*
