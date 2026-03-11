@@ -177,6 +177,8 @@
     }
     .btn-outline:hover { background: #f8fafc; }
     .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    .btn-danger { background: var(--danger); }
+    .btn-danger:hover { background: #dc2626; }
     
     .search-box {
       display: flex;
@@ -204,7 +206,6 @@
       margin-left: auto;
     }
     
-    /* Selector de color de fondo - SIEMPRE VISIBLE */
     .bg-color-selector {
       display: flex;
       gap: 0.25rem;
@@ -234,7 +235,6 @@
       transition: background 0.3s;
     }
     
-    /* GRID */
     .board-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -295,6 +295,7 @@
       opacity: 0.7;
       padding: 0.15rem;
       border-radius: 4px;
+      transition: opacity 0.2s, background 0.2s;
     }
     .note-actions button:hover {
       opacity: 1;
@@ -609,7 +610,6 @@
       60%, 100% { content: "..."; }
     }
     
-    /* MOBILE */
     @media (max-width: 640px) {
       .landing-logo { font-size: 1.7rem; }
       .landing-subtitle { font-size: 0.9rem; }
@@ -628,10 +628,7 @@
       .search-box { min-width: 100px; }
       .search-box input { font-size: 0.8rem; }
       
-      /* Selector de fondo SIEMPRE visible en móvil */
-      .bg-color-selector { 
-        display: flex;
-      }
+      .bg-color-selector { display: flex; }
       
       .note-header { margin-bottom: 0.5rem; padding-bottom: 0.4rem; }
       .note-title { font-size: 0.9rem; }
@@ -692,7 +689,6 @@
           <input type="search" id="searchInput" placeholder="Buscar...">
         </div>
         
-        <!-- Selector de color de fondo - SIEMPRE VISIBLE -->
         <div class="bg-color-selector" id="bgColorSelector" title="Color de fondo">
           <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
           <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
@@ -766,7 +762,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" id="cancelNote">Cancelar</button>
-        <button class="btn" id="saveNote">GUARDAR</button>
+        <button class="btn" id="saveNote">GUARDAR CAMBIOS</button>
       </div>
     </div>
   </div>
@@ -818,7 +814,7 @@
       selectedColor: '#ffffff',
       boardBgColor: '#f8fafc',
       editingNoteId: null,
-      currentNoteId: null // Para comentarios
+      currentNoteId: null
     };
 
     const els = {
@@ -912,8 +908,8 @@
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           reactions: { likes: 0, comments: 0 },
-          likedBy: [], // Array de user IDs que dieron like
-          comments: [] // Array de comentarios
+          likedBy: [],
+          comments: []
         });
         showToast('✅ Creada');
       }
@@ -924,7 +920,6 @@
       showToast('🗑️ Eliminada');
     }
 
-    // Toggle like - CORREGIDO
     async function toggleLike(noteId) {
       const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
       const note = state.notes.find(n => n.id === noteId);
@@ -934,13 +929,11 @@
       const hasLiked = note.likedBy?.includes(userId);
       
       if (hasLiked) {
-        // Quitar like
         await updateDoc(noteRef, {
           likedBy: arrayRemove(userId),
           'reactions.likes': note.reactions?.likes > 0 ? note.reactions.likes - 1 : 0
         });
       } else {
-        // Dar like
         await updateDoc(noteRef, {
           likedBy: arrayUnion(userId),
           'reactions.likes': (note.reactions?.likes || 0) + 1
@@ -948,7 +941,6 @@
       }
     }
 
-    // Abrir modal de comentarios - CORREGIDO
     function openCommentsModal(noteId) {
       state.currentNoteId = noteId;
       const note = state.notes.find(n => n.id === noteId);
@@ -1051,12 +1043,11 @@
       
       const tags = note.tags?.map(t => `<span class="tag" onclick="filterByTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('') || '';
       
-      // Verificar si el usuario actual dio like
       const hasLiked = note.likedBy?.includes(state.currentUser?.uid);
       
       const actions = isOwner ? 
         `<button title="Editar" onclick="window.editNote('${note.id}')">✏️</button>
-         <button title="Eliminar" onclick="window.deleteNote('${note.id}')">🗑️</button>` : '';
+         <button title="Eliminar" onclick="window.deleteNote('${note.id}')" style="color:var(--danger)">❌</button>` : '';
       
       return `
         <article class="note" style="background:${note.color||'#fff'}" data-id="${note.id}">
@@ -1153,9 +1144,7 @@
       
       const type = document.querySelector('.post-type-btn.active').dataset.type;
       const url = document.getElementById('noteUrl').value.trim();
-      
-      // CORRECCIÓN: Obtener el contenido correctamente
-      const content = document.getElementById('noteBody').value; // Sin trim para permitir espacios
+      const content = document.getElementById('noteBody').value;
       
       if (['image','video','link'].includes(type) && url) {
         try { new URL(url); } catch { showToast('⚠️ URL inválida'); return; }
@@ -1166,7 +1155,7 @@
       await saveNoteToFirestore({
         type, 
         title,
-        content: type==='text'||type==='video' ? content : '', // Guardar contenido
+        content: type==='text'||type==='video' ? content : '',
         url: ['image','video','link'].includes(type) ? url : null,
         color: state.selectedColor, 
         tags,
@@ -1219,7 +1208,6 @@
       }
     );
     
-    // Selector de color de fondo
     document.querySelectorAll('.bg-color-option').forEach(opt => 
       opt.onclick = () => {
         document.querySelectorAll('.bg-color-option').forEach(o=>o.classList.remove('active'));
@@ -1242,7 +1230,6 @@
         });
     };
     
-    // Modal comentarios
     document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
     document.getElementById('addCommentBtn').onclick = addComment;
     document.getElementById('commentInput').onkeypress = (e) => {
@@ -1258,7 +1245,6 @@
       }
     };
 
-    // Funciones globales
     window.editNote = (id) => openNoteModal(id);
     window.deleteNote = async (id) => { if(confirm('¿Eliminar?')) await deleteNoteFromFirestore(id); };
     window.toggleLike = toggleLike;
