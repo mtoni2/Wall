@@ -204,26 +204,7 @@
       margin-left: auto;
     }
     
-    .layout-selector { display: flex; gap: 0.15rem; }
-    .layout-btn {
-      width: 30px; height: 30px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-    .layout-btn.active {
-      border-color: var(--primary);
-      background: #eef2ff;
-      color: var(--primary);
-    }
-    
-    /* Selector de color de fondo */
+    /* Selector de color de fondo - SIEMPRE VISIBLE */
     .bg-color-selector {
       display: flex;
       gap: 0.25rem;
@@ -261,22 +242,6 @@
       align-items: start;
     }
     
-    /* CANVAS */
-    .board-canvas {
-      position: relative;
-      min-height: 800px;
-      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-      background-size: 20px 20px;
-      overflow: visible;
-    }
-    
-    /* LIST */
-    .board-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-    }
-    
     .note {
       background: var(--card-bg);
       border-radius: 10px;
@@ -296,29 +261,6 @@
       height: auto;
       display: flex;
       flex-direction: column;
-    }
-    
-    .board-canvas .note {
-      position: absolute;
-      padding: 0.9rem;
-      width: 280px;
-      min-height: 220px;
-      cursor: move;
-      user-select: none;
-      z-index: 1;
-    }
-    .board-canvas .note.dragging {
-      opacity: 0.8;
-      z-index: 1000;
-      transform: scale(1.02);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-    }
-    
-    .board-list .note {
-      padding: 1rem;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
     }
     
     .note-header {
@@ -371,7 +313,6 @@
       font-size: 0.9rem;
     }
     
-    /* IMAGENES - IGUAL EN GRID Y CANVAS */
     .note-content img {
       max-width: 100%;
       max-height: 250px;
@@ -447,8 +388,14 @@
       cursor: pointer;
       padding: 0.15rem 0.3rem;
       border-radius: 4px;
+      transition: all 0.2s;
     }
     .reaction-btn:hover { background: #f1f5f9; }
+    .reaction-btn.active {
+      color: var(--primary);
+      font-weight: 600;
+      background: #eef2ff;
+    }
     
     /* MODAL */
     .modal {
@@ -561,6 +508,60 @@
       box-shadow: 0 0 0 2px white;
     }
     
+    /* Comentarios */
+    .comments-section {
+      margin-top: 0.6rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .comment {
+      padding: 0.4rem;
+      margin-bottom: 0.4rem;
+      background: #f8fafc;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+    .comment-author {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.75rem;
+      margin-bottom: 0.2rem;
+    }
+    .comment-text {
+      color: var(--text);
+      word-break: break-word;
+    }
+    .comment-form {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.5rem;
+    }
+    .comment-form input {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      outline: none;
+    }
+    .comment-form input:focus {
+      border-color: var(--primary);
+    }
+    .comment-form button {
+      padding: 0.4rem 0.8rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .comment-form button:hover {
+      background: var(--primary-hover);
+    }
+    
     .empty-state {
       text-align: center;
       padding: 2.5rem 1rem;
@@ -627,15 +628,10 @@
       .search-box { min-width: 100px; }
       .search-box input { font-size: 0.8rem; }
       
-      .bg-color-selector { display: none; }
-      .bg-color-selector.mobile-show { display: flex; }
-      
-      .layout-selector { gap: 0.1rem; }
-      .layout-btn { width: 28px; height: 28px; font-size: 0.85rem; }
-      
-      #board { padding: 0.7rem; min-height: calc(100vh - 120px); }
-      .board-grid { grid-template-columns: 1fr; gap: 0.8rem; }
-      .board-canvas .note { width: 260px; min-height: 200px; }
+      /* Selector de fondo SIEMPRE visible en móvil */
+      .bg-color-selector { 
+        display: flex;
+      }
       
       .note-header { margin-bottom: 0.5rem; padding-bottom: 0.4rem; }
       .note-title { font-size: 0.9rem; }
@@ -696,7 +692,7 @@
           <input type="search" id="searchInput" placeholder="Buscar...">
         </div>
         
-        <!-- Selector de color de fondo -->
+        <!-- Selector de color de fondo - SIEMPRE VISIBLE -->
         <div class="bg-color-selector" id="bgColorSelector" title="Color de fondo">
           <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
           <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
@@ -705,14 +701,6 @@
           <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
           <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
         </div>
-        
-        <div class="layout-selector">
-          <button class="layout-btn active" data-layout="grid" title="Cuadrícula">▦</button>
-          <button class="layout-btn" data-layout="canvas" title="Lienzo">✏️</button>
-          <button class="layout-btn" data-layout="list" title="Lista">☰</button>
-        </div>
-        
-        <button class="btn btn-outline" id="btnExport" title="Exportar">📤</button>
       </div>
     </div>
 
@@ -726,7 +714,7 @@
 
   </div>
 
-  <!-- Modal -->
+  <!-- Modal Nueva/Editar Nota -->
   <div class="modal" id="noteModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -783,12 +771,29 @@
     </div>
   </div>
 
+  <!-- Modal Comentarios -->
+  <div class="modal" id="commentsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="commentsModalTitle">💬 Comentarios</h3>
+        <button class="btn btn-outline btn-sm" id="closeCommentsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="commentsList" class="comments-section"></div>
+        <div class="comment-form">
+          <input type="text" id="commentInput" placeholder="Escribe un comentario...">
+          <button id="addCommentBtn">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="toastContainer"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
@@ -810,12 +815,10 @@
       boardId: 'default_board',
       notes: [],
       unsubscribe: null,
-      currentLayout: 'grid',
       selectedColor: '#ffffff',
       boardBgColor: '#f8fafc',
       editingNoteId: null,
-      draggedNote: null,
-      dragOffset: { x: 0, y: 0 }
+      currentNoteId: null // Para comentarios
     };
 
     const els = {
@@ -825,6 +828,7 @@
       board: document.getElementById('board'),
       emptyState: document.getElementById('emptyState'),
       noteModal: document.getElementById('noteModal'),
+      commentsModal: document.getElementById('commentsModal'),
       searchInput: document.getElementById('searchInput'),
       toastContainer: document.getElementById('toastContainer'),
       bgColorSelector: document.getElementById('bgColorSelector'),
@@ -896,7 +900,8 @@
       
       if (state.editingNoteId) {
         await updateDoc(doc(notesRef, state.editingNoteId), {
-          ...noteData, updatedAt: serverTimestamp()
+          ...noteData,
+          updatedAt: serverTimestamp()
         });
         showToast('✅ Actualizada');
       } else {
@@ -907,10 +912,8 @@
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           reactions: { likes: 0, comments: 0 },
-          position: state.currentLayout === 'canvas' ? {
-            x: Math.random() * 300 + 50,
-            y: Math.random() * 200 + 50
-          } : null
+          likedBy: [], // Array de user IDs que dieron like
+          comments: [] // Array de comentarios
         });
         showToast('✅ Creada');
       }
@@ -921,21 +924,83 @@
       showToast('🗑️ Eliminada');
     }
 
-    async function updateReaction(noteId, field) {
+    // Toggle like - CORREGIDO
+    async function toggleLike(noteId) {
       const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
       const note = state.notes.find(n => n.id === noteId);
-      if (note) {
+      if (!note) return;
+      
+      const userId = state.currentUser.uid;
+      const hasLiked = note.likedBy?.includes(userId);
+      
+      if (hasLiked) {
+        // Quitar like
         await updateDoc(noteRef, {
-          [`reactions.${field}`]: (note.reactions?.[field] || 0) + 1
+          likedBy: arrayRemove(userId),
+          'reactions.likes': note.reactions?.likes > 0 ? note.reactions.likes - 1 : 0
+        });
+      } else {
+        // Dar like
+        await updateDoc(noteRef, {
+          likedBy: arrayUnion(userId),
+          'reactions.likes': (note.reactions?.likes || 0) + 1
         });
       }
     }
 
-    async function updateNotePosition(noteId, x, y) {
-      await updateDoc(doc(db, 'boards', state.boardId, 'notes', noteId), {
-        position: { x, y },
-        updatedAt: serverTimestamp()
+    // Abrir modal de comentarios - CORREGIDO
+    function openCommentsModal(noteId) {
+      state.currentNoteId = noteId;
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      
+      document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions?.comments || 0})`;
+      renderComments(note);
+      els.commentsModal.classList.add('active');
+      document.getElementById('commentInput').focus();
+    }
+
+    function closeCommentsModal() {
+      els.commentsModal.classList.remove('active');
+      state.currentNoteId = null;
+    }
+
+    function renderComments(note) {
+      const list = document.getElementById('commentsList');
+      const comments = note.comments || [];
+      
+      if (comments.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Sin comentarios aún</p>';
+      } else {
+        list.innerHTML = comments.map(c => `
+          <div class="comment">
+            <div class="comment-author">${escapeHtml(c.author)}</div>
+            <div class="comment-text">${escapeHtml(c.text)}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function addComment() {
+      const input = document.getElementById('commentInput');
+      const text = input.value.trim();
+      if (!text || !state.currentNoteId) return;
+      
+      const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
+      const note = state.notes.find(n => n.id === state.currentNoteId);
+      
+      await updateDoc(noteRef, {
+        comments: arrayUnion({
+          author: state.currentUser.displayName || 'Usuario',
+          authorId: state.currentUser.uid,
+          text: text,
+          createdAt: serverTimestamp()
+        }),
+        'reactions.comments': (note.reactions?.comments || 0) + 1
       });
+      
+      input.value = '';
+      showToast('✅ Comentario agregado');
     }
 
     // === RENDER ===
@@ -959,13 +1024,8 @@
       }
       
       els.emptyState.style.display = 'none';
-      els.board.className = `board-${state.currentLayout}`;
+      els.board.className = 'board-grid';
       els.board.innerHTML = visible.map(note => createNoteHTML(note)).join('');
-      
-      if (state.currentLayout === 'canvas') {
-        setupCanvasDrag();
-        restoreCanvasPositions();
-      }
     }
 
     function createNoteHTML(note) {
@@ -990,6 +1050,10 @@
       }
       
       const tags = note.tags?.map(t => `<span class="tag" onclick="filterByTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('') || '';
+      
+      // Verificar si el usuario actual dio like
+      const hasLiked = note.likedBy?.includes(state.currentUser?.uid);
+      
       const actions = isOwner ? 
         `<button title="Editar" onclick="window.editNote('${note.id}')">✏️</button>
          <button title="Eliminar" onclick="window.deleteNote('${note.id}')">🗑️</button>` : '';
@@ -1009,82 +1073,18 @@
           ${media}
           ${tags ? `<div class="note-tags">${tags}</div>`:''}
           <div class="note-reactions">
-            <button class="reaction-btn" onclick="window.react('${note.id}','likes')">👍 <span>${note.reactions?.likes||0}</span></button>
-            <button class="reaction-btn" onclick="window.react('${note.id}','comments')">💬 <span>${note.reactions?.comments||0}</span></button>
+            <button class="reaction-btn ${hasLiked ? 'active' : ''}" onclick="window.toggleLike('${note.id}')">
+              👍 <span>${note.reactions?.likes || 0}</span>
+            </button>
+            <button class="reaction-btn" onclick="window.openComments('${note.id}')">
+              💬 <span>${note.reactions?.comments || 0}</span>
+            </button>
           </div>
         </article>
       `;
     }
 
-    // === CANVAS DRAG ===
-    function setupCanvasDrag() {
-      const board = els.board;
-      board.addEventListener('mousedown', handleDragStart);
-      board.addEventListener('mousemove', handleDragMove);
-      board.addEventListener('mouseup', handleDragEnd);
-      board.addEventListener('mouseleave', handleDragEnd);
-      board.addEventListener('touchstart', handleDragStart, { passive: false });
-      board.addEventListener('touchmove', handleDragMove, { passive: false });
-      board.addEventListener('touchend', handleDragEnd);
-    }
-
-    function handleDragStart(e) {
-      const note = e.target.closest('.note');
-      if (!note) return;
-      e.preventDefault();
-      state.draggedNote = note;
-      note.classList.add('dragging');
-      
-      const rect = note.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
-      state.dragOffset = { x: clientX - rect.left, y: clientY - rect.top };
-      note.style.zIndex = '1000';
-    }
-
-    function handleDragMove(e) {
-      if (!state.draggedNote) return;
-      e.preventDefault();
-      
-      const boardRect = els.board.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      
-      let newX = clientX - boardRect.left - state.dragOffset.x;
-      let newY = clientY - boardRect.top - state.dragOffset.y;
-      
-      newX = Math.max(0, Math.min(newX, boardRect.width - state.draggedNote.offsetWidth));
-      newY = Math.max(0, Math.min(newY, boardRect.height - state.draggedNote.offsetHeight));
-      
-      state.draggedNote.style.left = `${newX}px`;
-      state.draggedNote.style.top = `${newY}px`;
-    }
-
-    function handleDragEnd(e) {
-      if (!state.draggedNote) return;
-      const note = state.draggedNote;
-      const noteId = note.dataset.id;
-      const newX = parseFloat(note.style.left) || 0;
-      const newY = parseFloat(note.style.top) || 0;
-      
-      updateNotePosition(noteId, newX, newY);
-      note.classList.remove('dragging');
-      note.style.zIndex = '';
-      state.draggedNote = null;
-    }
-
-    function restoreCanvasPositions() {
-      state.notes.forEach(note => {
-        const noteEl = els.board.querySelector(`[data-id="${note.id}"]`);
-        if (noteEl && note.position) {
-          noteEl.style.left = `${note.position.x}px`;
-          noteEl.style.top = `${note.position.y}px`;
-        }
-      });
-    }
-
-    // === MODAL ===
+    // === MODAL NOTA ===
     function openNoteModal(noteId = null) {
       state.editingNoteId = noteId;
       
@@ -1154,6 +1154,9 @@
       const type = document.querySelector('.post-type-btn.active').dataset.type;
       const url = document.getElementById('noteUrl').value.trim();
       
+      // CORRECCIÓN: Obtener el contenido correctamente
+      const content = document.getElementById('noteBody').value; // Sin trim para permitir espacios
+      
       if (['image','video','link'].includes(type) && url) {
         try { new URL(url); } catch { showToast('⚠️ URL inválida'); return; }
       }
@@ -1161,10 +1164,12 @@
       const tags = document.getElementById('noteTags').value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
       
       await saveNoteToFirestore({
-        type, title,
-        content: type==='text'||type==='video' ? document.getElementById('noteBody').value.trim() : '',
+        type, 
+        title,
+        content: type==='text'||type==='video' ? content : '', // Guardar contenido
         url: ['image','video','link'].includes(type) ? url : null,
-        color: state.selectedColor, tags,
+        color: state.selectedColor, 
+        tags,
         private: document.getElementById('notePrivate').checked
       });
       
@@ -1214,23 +1219,13 @@
       }
     );
     
-    // Selector de color de fondo del tablero
+    // Selector de color de fondo
     document.querySelectorAll('.bg-color-option').forEach(opt => 
       opt.onclick = () => {
         document.querySelectorAll('.bg-color-option').forEach(o=>o.classList.remove('active'));
         opt.classList.add('active');
         state.boardBgColor = opt.dataset.color;
         els.board.style.backgroundColor = opt.dataset.color;
-      }
-    );
-    
-    document.querySelectorAll('.layout-btn').forEach(btn => 
-      btn.onclick = () => {
-        document.querySelectorAll('.layout-btn').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        state.currentLayout = btn.dataset.layout;
-        els.board.className = `board-${state.currentLayout}`;
-        renderNotes();
       }
     );
     
@@ -1247,12 +1242,27 @@
         });
     };
     
+    // Modal comentarios
+    document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
+    document.getElementById('addCommentBtn').onclick = addComment;
+    document.getElementById('commentInput').onkeypress = (e) => {
+      if (e.key === 'Enter') addComment();
+    };
+    
     els.noteModal.onclick = (e) => { if(e.target===els.noteModal) closeModal(); };
-    document.onkeydown = (e) => { if(e.key==='Escape' && els.noteModal.classList.contains('active')) closeModal(); };
+    els.commentsModal.onclick = (e) => { if(e.target===els.commentsModal) closeCommentsModal(); };
+    document.onkeydown = (e) => { 
+      if(e.key==='Escape') {
+        if (els.noteModal.classList.contains('active')) closeModal();
+        if (els.commentsModal.classList.contains('active')) closeCommentsModal();
+      }
+    };
 
+    // Funciones globales
     window.editNote = (id) => openNoteModal(id);
     window.deleteNote = async (id) => { if(confirm('¿Eliminar?')) await deleteNoteFromFirestore(id); };
-    window.react = async (id, field) => await updateReaction(id, field);
+    window.toggleLike = toggleLike;
+    window.openComments = openCommentsModal;
     window.filterByTag = filterByTag;
     window.closeModal = closeModal;
 
