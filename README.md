@@ -29,7 +29,7 @@ Puedes ver la aplicación funcionando aquí:
 
 ---
 
-# 🛠️ Funciones
+## 📋 Resumen de funciones
 
 * **🔐 Autenticación con Google:** - ✅ Funcional
 * **📝 Crear/Editar/Eliminar notas:** - ✅ Funcional
