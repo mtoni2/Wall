@@ -1,256 +1,971 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muro de Ideas Pro</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        :root {
-            --primary: #6c5ce7;
-            --success: #00b894;
-            --danger: #d63031;
-        }
-
-        body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background-color: #81ecec; 
-            background-image: url('https://www.transparenttextures.com/patterns/notebook-dark.png'); 
-            min-height: 100vh; transition: background 0.5s;
-        }
-
-        /* --- PORTADA --- */
-        #login-screen { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: linear-gradient(rgba(108, 92, 231, 0.8), rgba(9, 132, 227, 0.8)), 
-                        url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover; background-position: center;
-            display:none; flex-direction:column; justify-content:center; align-items:center; z-index:4000; color: white;
-        }
-
-        .login-card { 
-            background: white; padding: 35px; border-radius: 24px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4); width: 90%; max-width: 320px; color: #2d3436;
-        }
-
-        /* --- CABECERA --- */
-        #header { 
-            background: rgba(255, 255, 255, 0.96); padding: 12px 20px; 
-            display: none; justify-content: space-between; align-items:center; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; 
-        }
-
-        .bg-controls { display: flex; gap: 10px; align-items: center; }
-        .bg-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-        #canvas { padding: 30px; display: flex; flex-wrap: wrap; gap: 25px; justify-content: center; }
-
-        .note { 
-            padding: 40px 20px 25px; border-radius: 2px; box-shadow: 8px 8px 15px rgba(0,0,0,0.2);
-            position: relative; width: 280px; min-height: 220px; box-sizing: border-box;
-        }
-        
-        .note::before { 
-            content: ""; position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-            width: 18px; height: 18px; background: #ff7675; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .note img { width: 100%; border-radius: 4px; margin-bottom: 12px; max-height: 180px; object-fit: cover; }
-        .note h3 { margin: 0; font-size: 0.75em; color: rgba(0,0,0,0.4); text-transform: uppercase; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .note p { margin: 12px 0 0; font-size: 1.1em; color: #333; line-height: 1.4; font-weight: 500; }
-
-        /* Ajuste de color de texto para notas oscuras (Bordeaux) */
-        .note.dark-note p { color: white; }
-        .note.dark-note h3 { color: rgba(255,255,255,0.5); }
-
-        .actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
-        .action-btn { background: rgba(255,255,255,0.8); border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 1em; }
-
-        #note-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 5000;
-        }
-        .modal-content { background: white; padding: 25px; border-radius: 18px; width: 90%; max-width: 380px; }
-        .modal-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        
-        .color-selector { display: flex; gap: 10px; margin: 10px 0 20px; justify-content: center; flex-wrap: wrap; }
-        .color-opt { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .color-opt.selected { border-color: #333; transform: scale(1.1); }
-
-        .btn-save { background: var(--success); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; }
-    </style>
-</head>
-<body id="main-body">
-
-<div id="login-screen">
-    <div style="margin-bottom: 25px;">
-        <h1 style="font-size: 3em; margin: 0;">Wall Escolar</h1>
-        <p>Tu espacio profesional de ideas.</p>
-    </div>
-    <div class="login-card">
-        <h3>¡Bienvenido!</h3>
-        <button onclick="login()" style="width:100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16">
-            Entrar con Google
-        </button>
-    </div>
-</div>
-
-<div id="header">
-    <div class="bg-controls">
-        <div class="bg-dot" style="background:#81ecec" onclick="changeBg('#81ecec')"></div>
-        <div class="bg-dot" style="background:#fab1a0" onclick="changeBg('#fab1a0')"></div>
-        <div class="bg-dot" style="background:#dfe6e9" onclick="changeBg('#dfe6e9')"></div>
-        <div class="bg-dot" style="background:#fdcb6e" onclick="changeBg('#fdcb6e')"></div>
-        <div class="bg-dot" style="background:#55efc4" onclick="changeBg('#55efc4')"></div>
-        <div class="bg-dot" style="background:#800000" onclick="changeBg('#800000')"></div>
-    </div>
-    <div style="display:flex; gap:12px; align-items: center;">
-        <button onclick="logout()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">SALIR</button>
-        <button onclick="openNoteForm()" style="background:var(--success); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">+ NOTA</button>
-    </div>
-</div>
-
-<div id="canvas"></div>
-
-<div id="note-modal">
-    <div class="modal-content">
-        <h2 id="modal-title" style="margin-top:0">Nueva Nota</h2>
-        <textarea id="note-text" class="modal-input" placeholder="Escribe tu idea aquí..." style="height:100px; resize:none;"></textarea>
-        <input type="text" id="note-img" class="modal-input" placeholder="Link de imagen (URL)">
-        
-        <p style="margin:0 0 8px; font-weight:bold; font-size:0.9em">Color de nota:</p>
-        <div class="color-selector">
-            <div class="color-opt selected" style="background:#fff740" onclick="setNoteColor('#fff740', this)"></div>
-            <div class="color-opt" style="background:#7efff5" onclick="setNoteColor('#7efff5', this)"></div>
-            <div class="color-opt" style="background:#ffaf40" onclick="setNoteColor('#ffaf40', this)"></div>
-            <div class="color-opt" style="background:#ffcccc" onclick="setNoteColor('#ffcccc', this)"></div>
-            <div class="color-opt" style="background:#cd84f1" onclick="setNoteColor('#cd84f1', this)"></div>
-            <div class="color-opt" style="background:#800000" onclick="setNoteColor('#800000', this)"></div> </div>
-        
-        <button class="btn-save" onclick="saveNote()">GUARDAR CAMBIOS</button>
-        <button onclick="closeNoteForm()" style="width:100%; background:none; border:none; color:#636e72; margin-top:10px; cursor:pointer;">Cancelar</button>
-    </div>
-</div>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
-    authDomain: "wall-5b79c.firebaseapp.com",
-    projectId: "wall-5b79c",
-    storageBucket: "wall-5b79c.firebasestorage.app",
-    messagingSenderId: "167646035095",
-    appId: "1:167646035095:web:8286c655f6b0986b33fdd2"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  let selectedNoteColor = '#fff740';
-  let currentEditId = null;
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('header').style.display = 'flex';
-        listenNotes(user.uid);
-    } else {
-        document.getElementById('login-screen').style.display = 'flex';
-        document.getElementById('header').style.display = 'none';
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📌 Muro de Ideas Pro</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
     }
-  });
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
 
-  function login() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  function logout() { if(confirm("¿Cerrar sesión?")) auth.signOut(); }
-
-  function openNoteForm(id = null, text = '', img = '', color = '#fff740') {
-    currentEditId = id;
-    document.getElementById('modal-title').innerText = id ? "Editar Nota" : "Nueva Nota";
-    document.getElementById('note-text').value = text;
-    document.getElementById('note-img').value = img;
-    selectedNoteColor = color;
+    .landing {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+    }
+    .landing.hidden { display: none !important; }
+    .landing-logo { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .landing-subtitle { font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .landing-description { max-width: 400px; margin: 0 auto 1.5rem; color: var(--text-muted); }
     
-    document.querySelectorAll('.color-opt').forEach(opt => {
-        opt.classList.remove('selected');
-        if (opt.style.backgroundColor === hexToRgb(color)) opt.classList.add('selected');
-    });
+    .google-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .google-btn img { width: 20px; }
+    
+    .landing-footer {
+      position: absolute;
+      bottom: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
 
-    document.getElementById('note-modal').style.display = 'flex';
-  }
+    .app-ui { display: none; }
+    .app-ui.visible { display: block; }
+    
+    header {
+      background: white;
+      padding: 0.7rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-title { font-size: 1.1rem; font-weight: 700; }
+    .user-section { display: flex; align-items: center; gap: 0.5rem; }
+    .user-info { text-align: right; display: none; }
+    .user-info.show { display: block; }
+    .user-name { font-weight: 600; font-size: 0.8rem; }
+    .user-email { font-size: 0.65rem; color: var(--text-muted); }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    
+    .toolbar {
+      padding: 0.6rem 1rem;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+    .btn {
+      padding: 0.45rem 0.85rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    .btn:hover { background: #4338ca; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.25rem 0.6rem;
+    }
+    .search-box input {
+      border: none;
+      background: transparent;
+      padding: 0.25rem;
+      width: 100%;
+      outline: none;
+    }
+    
+    .bg-color-selector {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+      padding: 0.2rem 0.5rem;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+    .bg-color-option {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .bg-color-option:hover { transform: scale(1.2); }
+    .bg-color-option.active {
+      border-color: var(--text);
+      box-shadow: 0 0 0 2px white;
+    }
+    
+    #board {
+      padding: 1rem;
+      min-height: calc(100vh - 130px);
+    }
+    
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    
+    .note {
+      background: white;
+      border-radius: 10px;
+      padding: 0.9rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      max-height: 450px;
+      overflow: hidden;
+    }
+    .note:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .note-author {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .note-author .avatar { width: 22px; height: 22px; font-size: 0.7rem; }
+    .note-date { font-size: 0.7rem; color: var(--text-muted); }
+    .note-actions { display: flex; gap: 0.15rem; }
+    .note-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      opacity: 0.7;
+      padding: 0.15rem;
+    }
+    .note-actions button:hover { opacity: 1; background: #f1f5f9; border-radius: 4px; }
+    
+    .note-title {
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+    }
+    .note-content {
+      color: #334155;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      max-height: 120px;
+      flex: 1;
+    }
+    
+    .note-content img,
+    .note-content video,
+    .note-content iframe {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 6px;
+      margin-top: 0.35rem;
+      display: block;
+      object-fit: contain;
+    }
+    
+    .note-content a.link-card {
+      display: block;
+      padding: 0.6rem;
+      background: #f8fafc;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--primary);
+      margin-top: 0.35rem;
+      border: 1px solid var(--border);
+      word-break: break-all;
+    }
+    
+    .note-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+    .tag {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      background: #eef2ff;
+      color: var(--primary);
+      border-radius: 20px;
+    }
+    
+    .note-reactions {
+      display: flex;
+      gap: 0.7rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.5rem;
+      margin-top: auto;
+    }
+    .reaction-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.15rem 0.3rem;
+      border-radius: 4px;
+    }
+    .reaction-btn:hover { background: #f1f5f9; }
+    .reaction-btn.active {
+      color: var(--primary);
+      font-weight: 600;
+      background: #eef2ff;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { padding: 1.2rem; }
+    .modal-footer {
+      padding: 0.8rem 1.2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.4rem;
+    }
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.65rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+    
+    .post-types {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+    }
+    .post-type-btn {
+      padding: 0.6rem 0.3rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.75rem;
+    }
+    .post-type-btn.active {
+      border-color: var(--primary);
+      background: #eef2ff;
+      color: var(--primary);
+    }
+    .post-type-btn .icon { font-size: 1.1rem; display: block; margin-bottom: 0.15rem; }
+    
+    .color-picker { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .color-option {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .color-option.selected {
+      border-color: var(--text);
+      box-shadow: 0 0 0 2px white;
+    }
+    
+    .comments-section {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    .comment {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: #f8fafc;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .comment-author {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.8rem;
+    }
+    .comment-form {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .comment-form input {
+      flex: 1;
+      padding: 0.5rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.85rem;
+    }
+    .comment-form button {
+      padding: 0.5rem 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+    .toast {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      left: 1rem;
+      background: #1e293b;
+      color: white;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      z-index: 300;
+      text-align: center;
+    }
+    
+    @media (max-width: 640px) {
+      .landing-logo { font-size: 1.7rem; }
+      .toolbar { flex-wrap: wrap; }
+      .search-box { order: 3; max-width: 100%; margin-top: 0.5rem; }
+      .note { max-height: 400px; }
+      .note-content img, .note-content video { max-height: 150px; }
+    }
+  </style>
+</head>
+<body>
 
-  function closeNoteForm() { document.getElementById('note-modal').style.display = 'none'; }
-  function setNoteColor(color, el) {
-    selectedNoteColor = color;
-    document.querySelectorAll('.color-opt').forEach(opt => opt.classList.remove('selected'));
-    el.classList.add('selected');
-  }
+  <main class="landing" id="landingPage">
+    <div class="landing-logo">📌 Muro de Ideas Pro</div>
+    <div class="landing-subtitle">Wall Escolar</div>
+    <p class="landing-description">Tu espacio profesional de ideas.</p>
+    <button class="google-btn" id="googleLogin">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+      Entrar con Google
+    </button>
+    <footer class="landing-footer">© 2026 - Desarrollado por Marcelo Tonini</footer>
+  </main>
 
-  function changeBg(color) { document.getElementById('main-body').style.backgroundColor = color; }
+  <div class="app-ui" id="appUI">
+    <header>
+      <div class="header-title">📌 Muro de Ideas</div>
+      <div class="user-section">
+        <div class="user-info" id="userInfo">
+          <div class="user-name" id="userName"></div>
+          <div class="user-email" id="userEmail"></div>
+        </div>
+        <div class="avatar" id="userAvatar">U</div>
+        <button class="btn btn-outline btn-sm" id="btnLogout">SALIR</button>
+      </div>
+    </header>
 
-  function saveNote() {
-    const text = document.getElementById('note-text').value;
-    const img = document.getElementById('note-img').value;
-    if (!text.trim()) return;
+    <div class="toolbar">
+      <button class="btn" id="btnNewNote">+ NOTA</button>
+      <div class="search-box">
+        <input type="search" id="searchInput" placeholder="Buscar...">
+      </div>
+      <div class="bg-color-selector" id="bgColorSelector">
+        <div class="bg-color-option active" style="background:#f8fafc" data-color="#f8fafc"></div>
+        <div class="bg-color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
+        <div class="bg-color-option" style="background:#dbeafe" data-color="#dbeafe"></div>
+        <div class="bg-color-option" style="background:#dcfce7" data-color="#dcfce7"></div>
+        <div class="bg-color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
+        <div class="bg-color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
+      </div>
+    </div>
 
-    const noteData = {
-        content: text,
-        imageUrl: img || null,
-        color: selectedNoteColor,
-        date: firebase.firestore.FieldValue.serverTimestamp()
+    <main id="board" class="board-grid">
+      <div class="empty-state" id="emptyState">
+        <p><strong>¡Tu muro está vacío!</strong></p>
+        <button class="btn" id="btnNewNoteEmpty">+ Crear primera nota</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Nota -->
+  <div class="modal" id="noteModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">✨ Nueva Nota</h3>
+        <button class="btn btn-outline btn-sm" id="closeModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Tipo</label>
+          <div class="post-types">
+            <button class="post-type-btn active" data-type="text"><span class="icon">📝</span>Texto</button>
+            <button class="post-type-btn" data-type="image"><span class="icon">🖼️</span>Imagen</button>
+            <button class="post-type-btn" data-type="video"><span class="icon">🎬</span>Video</button>
+            <button class="post-type-btn" data-type="link"><span class="icon">🔗</span>Enlace</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" id="noteTitle">
+        </div>
+        <div class="form-group" id="fieldContent">
+          <label>Contenido</label>
+          <textarea id="noteBody"></textarea>
+        </div>
+        <div class="form-group" id="fieldUrl" style="display:none;">
+          <label>URL</label>
+          <input type="url" id="noteUrl">
+          <div class="form-hint">Pega un enlace directo</div>
+        </div>
+        <div class="form-group">
+          <label>Color:</label>
+          <div class="color-picker">
+            <div class="color-option selected" style="background:#fff" data-color="#ffffff"></div>
+            <div class="color-option" style="background:#fef3c7" data-color="#fef3c7"></div>
+            <div class="color-option" style="background:#dbeafe" data-color="#dbeafe"></div>
+            <div class="color-option" style="background:#dcfce7" data-color="#dcfce7"></div>
+            <div class="color-option" style="background:#fce7f3" data-color="#fce7f3"></div>
+            <div class="color-option" style="background:#f3e8ff" data-color="#f3e8ff"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Etiquetas</label>
+          <input type="text" id="noteTags" placeholder="separadas por coma">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="notePrivate"> 🔒 Privada</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="cancelNote">Cancelar</button>
+        <button class="btn" id="saveNote">GUARDAR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Comentarios -->
+  <div class="modal" id="commentsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="commentsModalTitle">💬 Comentarios</h3>
+        <button class="btn btn-outline btn-sm" id="closeCommentsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="commentsList" class="comments-section"></div>
+        <div class="comment-form">
+          <input type="text" id="commentInput" placeholder="Escribe un comentario...">
+          <button id="addCommentBtn">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpGmt5Va1MQVtKZtd9_p1_TA-62L1rUOc",
+      authDomain: "wall-5b79c.firebaseapp.com",
+      projectId: "wall-5b79c",
+      storageBucket: "wall-5b79c.firebasestorage.app",
+      messagingSenderId: "167646035095",
+      appId: "1:167646035095:web:8286c655f6b0986b33fdd2",
+      measurementId: "G-PKW4S5Q177"
     };
 
-    if (currentEditId) {
-        db.collection("notes").doc(currentEditId).update(noteData).then(closeNoteForm);
-    } else {
-        db.collection("notes").add({
-            ...noteData,
-            author: auth.currentUser.displayName,
-            authorId: auth.currentUser.uid,
-            rotation: (Math.random() * 6 - 3).toFixed(1)
-        }).then(closeNoteForm);
-    }
-  }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-  function deleteNote(id) { if(confirm("¿Eliminar?")) db.collection("notes").doc(id).delete(); }
+    const state = {
+      currentUser: null,
+      boardId: 'default_board',
+      notes: [],
+      unsubscribe: null,
+      selectedColor: '#ffffff',
+      boardBgColor: '#f8fafc',
+      editingNoteId: null,
+      currentNoteId: null
+    };
 
-  function listenNotes(uid) {
-    db.collection("notes").where("authorId", "==", uid).onSnapshot(snapshot => {
-        const canvas = document.getElementById('canvas');
-        canvas.innerHTML = "";
-        const docs = snapshot.docs.sort((a,b) => (b.data().date?.seconds || 0) - (a.data().date?.seconds || 0));
+    const els = {
+      landingPage: document.getElementById('landingPage'),
+      appUI: document.getElementById('appUI'),
+      board: document.getElementById('board'),
+      emptyState: document.getElementById('emptyState'),
+      noteModal: document.getElementById('noteModal'),
+      commentsModal: document.getElementById('commentsModal'),
+      searchInput: document.getElementById('searchInput'),
+      toastContainer: document.getElementById('toastContainer'),
+      bgColorSelector: document.getElementById('bgColorSelector'),
+      userInfo: document.getElementById('userInfo')
+    };
 
-        docs.forEach(doc => {
-            const data = doc.data();
-            const noteDiv = document.createElement('div');
-            // Si el color es Bordeaux (#800000), le agregamos una clase para que el texto sea blanco
-            const isDark = data.color === '#800000';
-            noteDiv.className = `note ${isDark ? 'dark-note' : ''}`;
-            noteDiv.style.backgroundColor = data.color;
-            noteDiv.style.transform = `rotate(${data.rotation}deg)`;
-            noteDiv.innerHTML = `
-                <div class="actions">
-                    <button class="action-btn" onclick="openNoteForm('${doc.id}', '${data.content.replace(/'/g, "\\'")}', '${data.imageUrl || ''}', '${data.color}')">✏️</button>
-                    <button class="action-btn" onclick="deleteNote('${doc.id}')" style="color:red">X</button>
-                </div>
-                ${data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'">` : ''}
-                <h3>${data.author}</h3>
-                <p>${data.content}</p>
-            `;
-            canvas.appendChild(noteDiv);
-        });
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        state.currentUser = user;
+        document.getElementById('userName').textContent = user.displayName || 'Usuario';
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userAvatar').textContent = (user.displayName?.[0] || 'U').toUpperCase();
+        els.userInfo.classList.add('show');
+        els.landingPage.classList.add('hidden');
+        els.appUI.classList.add('visible');
+        subscribeToNotes();
+      } else {
+        state.currentUser = null;
+        if (state.unsubscribe) state.unsubscribe();
+        els.userInfo.classList.remove('show');
+        els.landingPage.classList.remove('hidden');
+        els.appUI.classList.remove('visible');
+      }
     });
-  }
 
-  function hexToRgb(hex) {
-    const div = document.createElement("div");
-    div.style.backgroundColor = hex;
-    return div.style.backgroundColor;
-  }
-</script>
+    document.getElementById('googleLogin').onclick = async () => {
+      try {
+        await signInWithPopup(auth, provider);
+        showToast('✅ ¡Bienvenido!');
+      } catch (error) {
+        showToast('❌ Error: ' + error.message);
+      }
+    };
+
+    document.getElementById('btnLogout').onclick = async () => {
+      await signOut(auth);
+      showToast('👋 Sesión cerrada');
+    };
+
+    function subscribeToNotes() {
+      if (state.unsubscribe) state.unsubscribe();
+      const q = query(collection(db, 'boards', state.boardId, 'notes'), orderBy('createdAt', 'desc'));
+      state.unsubscribe = onSnapshot(q, (snapshot) => {
+        state.notes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderNotes();
+      }, (error) => {
+        console.error('Error:', error);
+        els.board.innerHTML = '';
+        els.board.appendChild(els.emptyState);
+      });
+    }
+
+    async function saveNoteToFirestore(noteData) {
+      const notesRef = collection(db, 'boards', state.boardId, 'notes');
+      if (state.editingNoteId) {
+        await updateDoc(doc(notesRef, state.editingNoteId), {
+          ...noteData,
+          updatedAt: serverTimestamp()
+        });
+        showToast('✅ Actualizada');
+      } else {
+        await addDoc(notesRef, {
+          ...noteData,
+          authorId: state.currentUser.uid,
+          author: state.currentUser.displayName || 'Usuario',
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          reactions: { likes: 0, comments: 0 },
+          likedBy: [],
+          comments: []
+        });
+        showToast('✅ Creada');
+      }
+    }
+
+    async function deleteNote(noteId) {
+      if (!confirm('¿Eliminar?')) return;
+      await deleteDoc(doc(db, 'boards', state.boardId, 'notes', noteId));
+      showToast('🗑️ Eliminada');
+    }
+
+    async function toggleLike(noteId) {
+      const noteRef = doc(db, 'boards', state.boardId, 'notes', noteId);
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      
+      const userId = state.currentUser.uid;
+      const hasLiked = note.likedBy?.includes(userId);
+      
+      if (hasLiked) {
+        await updateDoc(noteRef, {
+          likedBy: arrayRemove(userId),
+          'reactions.likes': Math.max(0, (note.reactions?.likes || 0) - 1)
+        });
+      } else {
+        await updateDoc(noteRef, {
+          likedBy: arrayUnion(userId),
+          'reactions.likes': (note.reactions?.likes || 0) + 1
+        });
+      }
+    }
+
+    function openComments(noteId) {
+      state.currentNoteId = noteId;
+      const note = state.notes.find(n => n.id === noteId);
+      if (!note) return;
+      document.getElementById('commentsModalTitle').textContent = `💬 Comentarios (${note.reactions?.comments || 0})`;
+      renderComments(note);
+      els.commentsModal.classList.add('active');
+      setTimeout(() => document.getElementById('commentInput').focus(), 100);
+    }
+
+    function closeCommentsModal() {
+      els.commentsModal.classList.remove('active');
+      state.currentNoteId = null;
+    }
+
+    function renderComments(note) {
+      const list = document.getElementById('commentsList');
+      const comments = note.comments || [];
+      if (comments.length === 0) {
+        list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Sin comentarios</p>';
+      } else {
+        list.innerHTML = comments.map(c => `
+          <div class="comment">
+            <div class="comment-author">${escapeHtml(c.author)}</div>
+            <div>${escapeHtml(c.text)}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function addComment() {
+      const input = document.getElementById('commentInput');
+      const text = input.value.trim();
+      if (!text || !state.currentNoteId) return;
+      
+      const noteRef = doc(db, 'boards', state.boardId, 'notes', state.currentNoteId);
+      const note = state.notes.find(n => n.id === state.currentNoteId);
+      
+      await updateDoc(noteRef, {
+        comments: arrayUnion({
+          author: state.currentUser.displayName || 'Usuario',
+          authorId: state.currentUser.uid,
+          text: text,
+          createdAt: serverTimestamp()
+        }),
+        'reactions.comments': (note.reactions?.comments || 0) + 1
+      });
+      
+      input.value = '';
+      showToast('✅ Comentario agregado');
+    }
+
+    function renderNotes() {
+      const filter = els.searchInput.value.toLowerCase();
+      const visible = state.notes.filter(note => {
+        if (note.private && note.authorId !== state.currentUser?.uid) return false;
+        if (filter) {
+          return note.title?.toLowerCase().includes(filter) ||
+                 note.content?.toLowerCase().includes(filter) ||
+                 note.tags?.some(t => t?.toLowerCase().includes(filter));
+        }
+        return true;
+      });
+
+      if (visible.length === 0) {
+        els.board.innerHTML = '';
+        els.board.appendChild(els.emptyState);
+        els.emptyState.style.display = 'block';
+        return;
+      }
+      
+      els.emptyState.style.display = 'none';
+      els.board.innerHTML = visible.map(note => createNoteHTML(note)).join('');
+    }
+
+    function createNoteHTML(note) {
+      const isOwner = note.authorId === state.currentUser?.uid;
+      const date = note.createdAt?.toDate?.() || new Date();
+      const dateStr = date.toLocaleDateString('es-ES', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      
+      let media = '';
+      if (note.type === 'image' && note.url) {
+        media = `<img src="${escapeHtml(note.url)}" loading="lazy">`;
+      } else if (note.type === 'video' && note.url) {
+        if (note.url.includes('youtube.com') || note.url.includes('youtu.be')) {
+          const vid = note.url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/)?.[1];
+          if (vid) media = `<iframe src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
+        } else {
+          media = `<video controls src="${escapeHtml(note.url)}"></video>`;
+        }
+      } else if (note.type === 'link' && note.url) {
+        media = `<a href="${escapeHtml(note.url)}" target="_blank" class="link-card">🔗 ${escapeHtml(note.url.replace(/^https?:\/\//,''))}</a>`;
+      }
+      
+      const tags = note.tags?.map(t => `<span class="tag">#${escapeHtml(t)}</span>`).join('') || '';
+      const hasLiked = note.likedBy?.includes(state.currentUser?.uid);
+      
+      const actions = isOwner ? 
+        `<button title="Editar" onclick="window.editNote('${note.id}')">✏️</button>
+         <button title="Eliminar" onclick="window.deleteNote('${note.id}')" style="color:#ef4444">❌</button>` : '';
+      
+      return `
+        <article class="note" style="background:${note.color||'#fff'}" data-id="${note.id}">
+          <div class="note-header">
+            <div style="display:flex;align-items:center;gap:0.35rem">
+              <div class="avatar">${(note.author?.[0]||'U').toUpperCase()}</div>
+              <div>
+                <div style="font-size:0.8rem;font-weight:500">${escapeHtml(note.author||'Anónimo')}</div>
+                <div style="font-size:0.65rem;color:var(--text-muted)">${dateStr}</div>
+              </div>
+            </div>
+            <div class="note-actions">${actions}</div>
+          </div>
+          <h4 class="note-title">${escapeHtml(note.title)}</h4>
+          ${note.content ? `<div class="note-content">${escapeHtml(note.content)}</div>`:''}
+          ${media}
+          ${tags ? `<div class="note-tags">${tags}</div>`:''}
+          <div class="note-reactions">
+            <button class="reaction-btn ${hasLiked ? 'active' : ''}" onclick="window.toggleLike('${note.id}')">
+              👍 ${note.reactions?.likes || 0}
+            </button>
+            <button class="reaction-btn" onclick="window.openComments('${note.id}')">
+              💬 ${note.reactions?.comments || 0}
+            </button>
+          </div>
+        </article>
+      `;
+    }
+
+    function openNoteModal(noteId = null) {
+      state.editingNoteId = noteId;
+      if (noteId) {
+        const note = state.notes.find(n => n.id === noteId);
+        if (!note) return;
+        document.getElementById('modalTitle').textContent = '✏️ Editar Nota';
+        document.getElementById('noteTitle').value = note.title || '';
+        document.getElementById('noteBody').value = note.content || '';
+        document.getElementById('noteUrl').value = note.url || '';
+        document.getElementById('noteTags').value = note.tags?.join(', ') || '';
+        document.getElementById('notePrivate').checked = note.private || false;
+        document.querySelectorAll('.post-type-btn').forEach(btn => 
+          btn.classList.toggle('active', btn.dataset.type === note.type)
+        );
+        updateUrlField(note.type);
+        document.querySelectorAll('.color-option').forEach(opt => 
+          opt.classList.toggle('selected', opt.dataset.color === note.color)
+        );
+        state.selectedColor = note.color || '#ffffff';
+      } else {
+        document.getElementById('modalTitle').textContent = '✨ Nueva Nota';
+        document.getElementById('noteTitle').value = '';
+        document.getElementById('noteBody').value = '';
+        document.getElementById('noteUrl').value = '';
+        document.getElementById('noteTags').value = '';
+        document.getElementById('notePrivate').checked = false;
+        document.querySelectorAll('.post-type-btn').forEach((btn,i) => btn.classList.toggle('active', i===0));
+        updateUrlField('text');
+        document.querySelectorAll('.color-option').forEach((opt,i) => opt.classList.toggle('selected', i===0));
+        state.selectedColor = '#ffffff';
+      }
+      els.noteModal.classList.add('active');
+    }
+
+    function closeModal() {
+      els.noteModal.classList.remove('active');
+      state.editingNoteId = null;
+    }
+
+    function updateUrlField(type) {
+      const field = document.getElementById('fieldUrl');
+      const content = document.getElementById('fieldContent');
+      if (type === 'text') {
+        field.style.display = 'none';
+        content.style.display = 'block';
+      } else {
+        field.style.display = 'block';
+        content.style.display = type === 'link' ? 'none' : 'block';
+      }
+    }
+
+    async function handleSaveNote() {
+      const title = document.getElementById('noteTitle').value.trim();
+      if (!title) { showToast('⚠️ Título obligatorio'); return; }
+      
+      const type = document.querySelector('.post-type-btn.active').dataset.type;
+      const url = document.getElementById('noteUrl').value.trim();
+      const content = document.getElementById('noteBody').value;
+      
+      if (['image','video','link'].includes(type) && url) {
+        try { new URL(url); } catch { showToast('⚠️ URL inválida'); return; }
+      }
+      
+      const tags = document.getElementById('noteTags').value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
+      
+      await saveNoteToFirestore({
+        type, 
+        title,
+        content: (type==='text' || type==='video') ? content : (type==='image' ? content : ''),
+        url: ['image','video','link'].includes(type) ? url : null,
+        color: state.selectedColor, 
+        tags,
+        private: document.getElementById('notePrivate').checked
+      });
+      
+      closeModal();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      els.toastContainer.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    }
+
+    // Event listeners
+    document.getElementById('btnNewNote').onclick = () => openNoteModal();
+    document.getElementById('btnNewNoteEmpty').onclick = () => openNoteModal();
+    document.getElementById('closeModal').onclick = closeModal;
+    document.getElementById('cancelNote').onclick = closeModal;
+    document.getElementById('saveNote').onclick = handleSaveNote;
+    document.getElementById('closeCommentsModal').onclick = closeCommentsModal;
+    document.getElementById('addCommentBtn').onclick = addComment;
+    document.getElementById('commentInput').onkeypress = (e) => { if(e.key==='Enter') addComment(); };
+    
+    document.querySelectorAll('.post-type-btn').forEach(btn => 
+      btn.onclick = () => {
+        document.querySelectorAll('.post-type-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        updateUrlField(btn.dataset.type);
+      }
+    );
+    
+    document.querySelectorAll('.color-option').forEach(opt => 
+      opt.onclick = () => {
+        document.querySelectorAll('.color-option').forEach(o=>o.classList.remove('selected'));
+        opt.classList.add('selected');
+        state.selectedColor = opt.dataset.color;
+      }
+    );
+    
+    document.querySelectorAll('.bg-color-option').forEach(opt => 
+      opt.onclick = () => {
+        document.querySelectorAll('.bg-color-option').forEach(o=>o.classList.remove('active'));
+        opt.classList.add('active');
+        state.boardBgColor = opt.dataset.color;
+        els.board.style.backgroundColor = opt.dataset.color;
+      }
+    );
+    
+    els.searchInput.oninput = () => renderNotes();
+    els.noteModal.onclick = (e) => { if(e.target===els.noteModal) closeModal(); };
+    els.commentsModal.onclick = (e) => { if(e.target===els.commentsModal) closeCommentsModal(); };
+
+    // Global functions
+    window.editNote = openNoteModal;
+    window.deleteNote = deleteNote;
+    window.toggleLike = toggleLike;
+    window.openComments = openComments;
+  </script>
 </body>
 </html>
